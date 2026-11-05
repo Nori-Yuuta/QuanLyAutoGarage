@@ -1,0 +1,227 @@
+/* ============================================
+   AUTOGARAGE TOAST SYSTEM — Custom Notification
+   ============================================ */
+
+.toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+  max-width: 380px;
+  width: calc(100% - 48px);
+}
+
+.toast-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 18px 20px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #1a1a1a;
+  pointer-events: auto;
+  overflow: hidden;
+  transform: translateX(120%);
+  opacity: 0;
+  transition:
+    transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.3s ease;
+}
+
+.toast-item.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.toast-item.hide {
+  transform: translateX(120%);
+  opacity: 0;
+}
+
+/* Icon */
+.toast-icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  color: #1a1a1a;
+}
+
+.toast-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.5;
+}
+
+/* Nội dung */
+.toast-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 2px;
+  letter-spacing: 0.2px;
+}
+
+.toast-message {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+/* Nút đóng */
+.toast-close {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #aaa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s, color 0.2s;
+  padding: 0;
+}
+
+.toast-close:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+/* Progress bar đếm ngược */
+.toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  background: #1a1a1a;
+  transform-origin: left;
+  animation: toastProgress linear forwards;
+}
+
+@keyframes toastProgress {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+/* ============ BIẾN THỂ THEO LOẠI ============ */
+
+/* SUCCESS — xanh lá */
+.toast-item.success {
+  border-left-color: #10b981;
+}
+.toast-item.success .toast-icon {
+  background: #d1fae5;
+  color: #10b981;
+}
+.toast-item.success .toast-progress {
+  background: #10b981;
+}
+
+/* ERROR — đỏ */
+.toast-item.error {
+  border-left-color: #ef4444;
+}
+.toast-item.error .toast-icon {
+  background: #fee2e2;
+  color: #ef4444;
+}
+.toast-item.error .toast-progress {
+  background: #ef4444;
+}
+
+/* WARNING — vàng cam */
+.toast-item.warning {
+  border-left-color: #f59e0b;
+}
+.toast-item.warning .toast-icon {
+  background: #fef3c7;
+  color: #f59e0b;
+}
+.toast-item.warning .toast-progress {
+  background: #f59e0b;
+}
+
+/* INFO — xanh dương */
+.toast-item.info {
+  border-left-color: #3b82f6;
+}
+.toast-item.info .toast-icon {
+  background: #dbeafe;
+  color: #3b82f6;
+}
+.toast-item.info .toast-progress {
+  background: #3b82f6;
+}
+
+/* CART — vàng đen (riêng cho giỏ hàng) */
+.toast-item.cart {
+  border-left-color: #ffcc00;
+  background: linear-gradient(135deg, #fffef5, #ffffff);
+}
+.toast-item.cart .toast-icon {
+  background: #fff3cd;
+  color: #b45309;
+}
+.toast-item.cart .toast-progress {
+  background: #ffcc00;
+}
+
+/* Animation icon pop khi xuất hiện */
+.toast-item.show .toast-icon svg {
+  animation: iconPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
+}
+
+@keyframes iconPop {
+  0%   { transform: scale(0) rotate(-45deg); }
+  60%  { transform: scale(1.2) rotate(5deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .toast-container {
+    top: 16px;
+    right: 16px;
+    left: 16px;
+    max-width: none;
+    width: auto;
+  }
+  .toast-item {
+    padding: 14px 16px 18px;
+  }
+}
+
+/* Hiệu ứng rung nhẹ cho lỗi */
+.toast-item.error.show {
+  animation: shake 0.4s ease 0.15s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-6px); }
+  40%      { transform: translateX(6px); }
+  60%      { transform: translateX(-4px); }
+  80%      { transform: translateX(4px); }
+}

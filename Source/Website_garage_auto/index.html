@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoGarage - Hệ thống quản lý garage ô tô</title>
+  <link rel="stylesheet" href="css/loading.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/page.css">
+  <link rel="stylesheet" href="css/toast.css">
+</head>
+<body>
+
+  <!-- ========== LOADING SCREEN ========== -->
+  <div id="loading-screen">
+    <div class="road">
+      <div class="road-line"></div>
+    </div>
+
+    <div class="car-container">
+      <div class="car">
+        <svg class="car-svg" viewBox="0 0 260 100" xmlns="http://www.w3.org/2000/svg">
+          <path d="M30 70 Q35 40 70 35 L95 20 Q110 12 140 12 L180 20 Q210 30 225 55 L240 65 Q245 70 240 78 L230 80 L30 80 Z"
+                fill="#ffffff" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M100 25 L135 18 L170 25 L185 55 L95 55 Z"
+                fill="#000000" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/>
+          <circle cx="70" cy="80" r="14" fill="#ffffff" stroke="#ffffff" stroke-width="2"/>
+          <circle cx="70" cy="80" r="6"  fill="#000000"/>
+          <circle cx="195" cy="80" r="14" fill="#ffffff" stroke="#ffffff" stroke-width="2"/>
+          <circle cx="195" cy="80" r="6"  fill="#000000"/>
+          <rect x="225" y="55" width="14" height="7" rx="2" fill="#ffffff"/>
+        </svg>
+      </div>
+    </div>
+
+    <button id="enter-btn" class="enter-btn">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:8px">
+        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+      </svg>
+      <span>NHẤN ĐỂ VÀO GARAGE</span>
+    </button>
+  </div>
+
+  <!-- ========== MAIN SITE ========== -->
+  <div id="main-site" class="hidden">
+
+    <header class="site-header">
+      <a href="index.html" class="logo">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px">
+          <path d="M5 17h14M5 17l1.5-6.5A2 2 0 0 1 8.4 9h7.2a2 2 0 0 1 1.9 1.5L19 17M5 17v3M19 17v3"></path>
+          <circle cx="7.5" cy="19" r="1.5"></circle>
+          <circle cx="16.5" cy="19" r="1.5"></circle>
+        </svg>
+        AutoGarage
+      </a>
+
+      <nav class="main-nav">
+        <ul class="menu">
+          <li class="menu-item has-dropdown">
+            <a href="#" class="menu-link">Các Hãng Xe <span class="caret">▾</span></a>
+            <ul class="dropdown">
+              <li><a href="cars.html">Tất Cả Hãng Xe</a></li>
+              <li class="dropdown-group">Hãng Được Tài Trợ</li>
+              <li><a href="cars.html?brand=toyota">Toyota</a></li>
+              <li><a href="cars.html?brand=honda">Honda</a></li>
+              <li><a href="cars.html?brand=ford">Ford</a></li>
+              <li><a href="cars.html?brand=mazda">Mazda</a></li>
+              <li><a href="cars.html?brand=bmw">BMW</a></li>
+              <li><a href="cars.html?brand=mercedes">Mercedes-Benz</a></li>
+            </ul>
+          </li>
+
+          <li class="menu-item has-dropdown">
+            <a href="#" class="menu-link">Phụ Kiện <span class="caret">▾</span></a>
+            <ul class="dropdown">
+              <li><a href="accessories.html">Tất Cả Phụ Kiện</a></li>
+              <li class="dropdown-group">Theo Danh Mục</li>
+              <li><a href="accessories.html?category=Nội thất">Nội thất</a></li>
+              <li><a href="accessories.html?category=Ngoại thất">Ngoại thất</a></li>
+              <li><a href="accessories.html?category=An toàn">An toàn</a></li>
+              <li><a href="accessories.html?category=Vận hành">Vận hành</a></li>
+            </ul>
+          </li>
+
+          <li class="menu-item"><a href="news.html">Tin Tức</a></li>
+          <li class="menu-item"><a href="about.html">Giới Thiệu</a></li>
+
+          <li class="menu-item has-dropdown">
+            <a href="#" class="menu-link">Dịch Vụ <span class="caret">▾</span></a>
+            <ul class="dropdown">
+              <li><a href="#">Bảo dưỡng định kỳ</a></li>
+              <li><a href="#">Sửa chữa - Đồng sơn</a></li>
+              <li><a href="#">Đăng kiểm</a></li>
+              <li><a href="#">Rửa xe - Detailing</a></li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <a href="cart.html" class="btn-cart" aria-label="Giỏ hàng" style="text-decoration:none">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.6 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"></path>
+          </svg>
+          <span class="cart-count" id="cart-count">0</span>
+        </a>
+
+        <a href="auth.html" class="header-login-btn" id="header-auth-btn">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          Đăng nhập
+        </a>
+      </div>
+    </header>
+
+    <main>
+      <!-- BANNER -->
+      <section class="hero-banner">
+        <div class="hero-overlay"></div>
+        <img class="hero-img"
+             src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600&q=80"
+             alt="Banner xe hơi">
+        <div class="hero-content">
+          <h1 class="hero-title">Khám Phá Thế Giới Xe Hơi</h1>
+          <p class="hero-subtitle">
+            Xe chính hãng từ nhiều thương hiệu uy tín — Phụ kiện cao cấp — Dịch vụ tận tâm.
+          </p>
+          <div class="hero-actions">
+            <a href="cars.html" class="hero-btn hero-btn-primary">Xem Các Hãng Xe</a>
+            <a href="accessories.html" class="hero-btn hero-btn-outline">Khám Phá Phụ Kiện</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- FLASH SALE + ĐẾM NGƯỢC -->
+      <section class="flash-sale">
+        <div class="flash-inner">
+          <div class="flash-content">
+            <span class="flash-badge">FLASH SALE</span>
+            <h2>Ưu Đãi <span class="highlight">30%</span> Toàn Bộ Phụ Kiện</h2>
+            <p>Chương trình kết thúc sau — nhanh tay nhận mã giảm giá và đặt hàng ngay hôm nay!</p>
+
+            <div class="countdown" id="countdown">
+              <div class="count-box">
+                <span class="count-num" id="cd-days">00</span>
+                <span class="count-label">Ngày</span>
+              </div>
+              <div class="count-box">
+                <span class="count-num" id="cd-hours">00</span>
+                <span class="count-label">Giờ</span>
+              </div>
+              <div class="count-box">
+                <span class="count-num" id="cd-mins">00</span>
+                <span class="count-label">Phút</span>
+              </div>
+              <div class="count-box">
+                <span class="count-num" id="cd-secs">00</span>
+                <span class="count-label">Giây</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flash-coupon">
+            <div class="flash-coupon-label">Mã giảm giá</div>
+            <div class="flash-coupon-code">SALE30</div>
+            <div class="flash-coupon-desc">Giảm 30% cho đơn hàng phụ kiện</div>
+            <button class="flash-coupon-btn" id="copy-coupon-btn">Sao chép mã</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- BẢN TIN -->
+      <section id="news-preview" class="section">
+        <h2 class="section-title">Bản Tin Mới Nhất</h2>
+        <div class="news-grid">
+          <article class="news-card">
+            <div class="news-img" style="background: linear-gradient(135deg, #667eea, #764ba2)">🚗</div>
+            <div class="news-body">
+              <div class="news-meta">
+                <span class="news-tag">Xe Mới</span>
+                <span class="news-date">15/11/2024</span>
+              </div>
+              <h3>Toyota Camry 2025 chính thức ra mắt tại Việt Nam</h3>
+              <p>Thế hệ mới với thiết kế thể thao hơn, động cơ hybrid tiết kiệm nhiên liệu.</p>
+              <a href="news.html" class="news-link">Đọc tiếp →</a>
+            </div>
+          </article>
+          <article class="news-card">
+            <div class="news-img" style="background: linear-gradient(135deg, #f093fb, #f5576c)">🎉</div>
+            <div class="news-body">
+              <div class="news-meta">
+                <span class="news-tag">Khuyến Mãi</span>
+                <span class="news-date">10/11/2024</span>
+              </div>
+              <h3>Flash Sale 30% toàn bộ phụ kiện ô tô tháng 11</h3>
+              <p>Chương trình ưu đãi lớn nhất năm — giảm giá 30% cho tất cả phụ kiện.</p>
+              <a href="news.html" class="news-link">Đọc tiếp →</a>
+            </div>
+          </article>
+          <article class="news-card">
+            <div class="news-img" style="background: linear-gradient(135deg, #4facfe, #00f2fe)">⚡</div>
+            <div class="news-body">
+              <div class="news-meta">
+                <span class="news-tag">Công Nghệ</span>
+                <span class="news-date">05/11/2024</span>
+              </div>
+              <h3>Camera 360 độ — Bước tiến mới trong an toàn lái xe</h3>
+              <p>Tìm hiểu vì sao đây là phụ kiện không thể thiếu cho xe hơi hiện đại.</p>
+              <a href="news.html" class="news-link">Đọc tiếp →</a>
+            </div>
+          </article>
+        </div>
+        <div style="text-align:center;margin-top:32px">
+          <a href="news.html" class="hero-btn hero-btn-primary" style="display:inline-block">Xem Tất Cả Tin Tức</a>
+        </div>
+      </section>
+
+      <!-- GIỚI THIỆU -->
+      <section id="about-preview" class="section" style="background:#f8f9fb;max-width:none;padding-left:40px;padding-right:40px">
+        <div style="max-width:1200px;margin:0 auto">
+          <h2 class="section-title">Về AutoGarage</h2>
+          <div class="about-grid">
+            <div class="about-text">
+              <p>
+                AutoGarage ra đời năm 2010 với sứ mệnh mang đến cho người Việt những chiếc xe
+                chất lượng quốc tế cùng dịch vụ chăm sóc tận tâm. Từ một garage nhỏ tại Sài Gòn,
+                chúng tôi đã phát triển thành hệ thống phân phối xe và phụ kiện ô tô hàng đầu
+                với hơn 20 showroom trên toàn quốc.
+              </p>
+              <a href="about.html" class="hero-btn hero-btn-primary" style="display:inline-block;margin-top:16px">Tìm Hiểu Thêm</a>
+            </div>
+            <div class="about-stats">
+              <div class="stat-card">
+                <div class="stat-num">14+</div>
+                <div class="stat-label">Năm Kinh Nghiệm</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-num">20+</div>
+                <div class="stat-label">Showroom</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-num">50K+</div>
+                <div class="stat-label">Khách Hàng</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-num">98%</div>
+                <div class="stat-label">Hài Lòng</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ❌ ĐÃ XÓA section #cars-section và #acc-section -->
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h3 class="footer-title">AutoGarage</h3>
+          <p class="footer-text">
+            Hệ thống garage ô tô chuyên cung cấp xe hơi chính hãng và phụ kiện cao cấp
+            từ nhiều thương hiệu uy tín trên toàn thế giới.
+          </p>
+          <div class="footer-social">
+            <a href="#" aria-label="Facebook">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+              </svg>
+            </a>
+            <a href="#" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+              </svg>
+            </a>
+            <a href="#" aria-label="YouTube">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path>
+                <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">Liên Hệ</h4>
+          <ul class="footer-list">
+            <li>123 Đường Lê Lợi, Quận 1, TP.HCM</li>
+            <li>0901 234 567</li>
+            <li>contact@autogarage.vn</li>
+            <li>T2 – T7: 8:00 – 20:00</li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">Danh Mục</h4>
+          <ul class="footer-links">
+            <li><a href="cars.html">Các Hãng Xe</a></li>
+            <li><a href="accessories.html">Phụ Kiện</a></li>
+            <li><a href="news.html">Tin Tức</a></li>
+            <li><a href="about.html">Giới Thiệu</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">Đăng Ký Nhận Tin</h4>
+          <p class="footer-text">Nhận thông tin khuyến mãi & xe mới nhất.</p>
+          <form class="footer-form" id="newsletter-form">
+            <input type="email" placeholder="Email của bạn..." required>
+            <button type="submit" aria-label="Gửi">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2024 AutoGarage. Đây là website demo — mọi thông tin chỉ mang tính minh họa.</p>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/loading.js"></script>
+  <script src="js/toast.js"></script>
+</body>
+</html>

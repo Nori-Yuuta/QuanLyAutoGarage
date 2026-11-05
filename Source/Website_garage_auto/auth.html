@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng Nhập / Đăng Ký — AutoGarage</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/toast.css">
+</head>
+<body class="auth-page">
+
+<div class="auth-container">
+  <!-- TAB: Đăng nhập / Đăng ký -->
+  <div class="auth-tabs">
+    <button class="auth-tab active" data-tab="login">Đăng Nhập</button>
+    <button class="auth-tab" data-tab="register">Đăng Ký</button>
+  </div>
+
+  <!-- Form ĐĂNG NHẬP -->
+  <form id="login-form" class="auth-form">
+    <h2 class="auth-title">Chào mừng trở lại</h2>
+    <p class="auth-desc">Đăng nhập để tiếp tục với AutoGarage.</p>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" name="email" placeholder="ban@example.com" required>
+    </div>
+
+    <div class="form-group">
+      <label>Mật khẩu</label>
+      <input type="password" name="password" placeholder="••••••••" required minlength="6">
+    </div>
+
+    <button type="submit" class="auth-submit">Đăng Nhập</button>
+    <p class="auth-switch">
+      Chưa có tài khoản?
+      <a href="#" data-switch="register">Đăng ký ngay</a>
+    </p>
+    <a href="index.html" class="auth-back">← Quay về trang chủ</a>
+  </form>
+
+  <!-- Form ĐĂNG KÝ -->
+  <form id="register-form" class="auth-form hidden">
+    <h2 class="auth-title">Tạo tài khoản mới</h2>
+    <p class="auth-desc">Chỉ mất vài giây để bắt đầu.</p>
+
+    <div class="form-group">
+      <label>Họ và tên</label>
+      <input type="text" name="name" placeholder="Nguyễn Văn A" required>
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" name="email" placeholder="ban@example.com" required>
+    </div>
+
+    <div class="form-group">
+      <label>Số điện thoại</label>
+      <input type="tel" name="phone" placeholder="0901 234 567" required pattern="[0-9 +]{8,15}">
+    </div>
+
+    <div class="form-group">
+      <label>Mật khẩu</label>
+      <input type="password" name="password" placeholder="Tối thiểu 6 ký tự" required minlength="6">
+    </div>
+
+    <div class="form-group">
+      <label>Xác nhận mật khẩu</label>
+      <input type="password" name="confirm" placeholder="Nhập lại mật khẩu" required minlength="6">
+    </div>
+
+    <button type="submit" class="auth-submit">Đăng Ký</button>
+    <p class="auth-switch">
+      Đã có tài khoản?
+      <a href="#" data-switch="login">Đăng nhập</a>
+    </p>
+  </form>
+</div>
+
+<div id="auth-toast" class="toast"></div>
+
+<script src="js/toast.js"></script>
+<script src="js/auth.js"></script>
+
+</body>
+</html>
