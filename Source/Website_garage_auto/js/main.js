@@ -4,6 +4,57 @@ function escapeHtml(str) {
   return d.innerHTML;
 }
 
+/* ===== RENDER XE VÀ PHỤ KIỆN (LẤY TỪ LOCALSTORAGE DO ADMIN NHẬP) ===== */
+// Hàm hỗ trợ render ảnh (Xử lý cả Emoji và Ảnh Base64)
+function renderImage(imgSrc, extraStyle = "") {
+  if (imgSrc && imgSrc.startsWith('data:image')) {
+    return `<img src="${imgSrc}" style="width:100%; height:100%; object-fit:cover; ${extraStyle}">`;
+  }
+  return `<span style="${extraStyle}">${imgSrc || '📦'}</span>`;
+}
+
+function renderCars(list) {
+  const grid = document.getElementById('cars-grid');
+  if (!grid) return;
+  if (!list || !list.length) {
+    grid.innerHTML = '<p style="color:#888;grid-column:1/-1;padding:20px">Không có xe nào.</p>';
+    return;
+  }
+  grid.innerHTML = list.map(car => `
+    <a class="card" href="product.html?type=car&id=${car.id}">
+      <div class="card-img" style="background:#fff; display:flex; align-items:center; justify-content:center;">
+        ${renderImage(car.img, 'font-size:60px')}
+      </div>
+      <div class="card-body">
+        <div class="card-brand">${escapeHtml(car.brand)}</div>
+        <div class="card-title">${escapeHtml(car.name)}</div>
+        <div class="card-price">${escapeHtml(car.price)}</div>
+      </div>
+    </a>
+  `).join('');
+}
+
+function renderAccessories(list) {
+  const grid = document.getElementById('acc-grid');
+  if (!grid) return;
+  if (!list || !list.length) {
+    grid.innerHTML = '<p style="color:#888;grid-column:1/-1;padding:20px">Không có phụ kiện nào.</p>';
+    return;
+  }
+  grid.innerHTML = list.map(acc => `
+    <a class="card" href="product.html?type=acc&id=${acc.id}">
+      <div class="card-img" style="background:#fff; display:flex; align-items:center; justify-content:center;">
+        ${renderImage(acc.img, 'font-size:60px')}
+      </div>
+      <div class="card-body">
+        <div class="card-brand">${escapeHtml(acc.category)}</div>
+        <div class="card-title">${escapeHtml(acc.name)}</div>
+        <div class="card-price">${escapeHtml(acc.price)}</div>
+      </div>
+    </a>
+  `).join('');
+}
+
 /* ===== COUNTDOWN FLASH SALE ===== */
 function initCountdown() {
   const cd = document.getElementById('countdown');
@@ -68,7 +119,8 @@ function initHeader() {
   const authBtn = document.getElementById('header-auth-btn');
   const current = JSON.parse(localStorage.getItem('autogarage_current') || 'null');
   if (current && authBtn) {
-    authBtn.href = 'profile.html';
+    // Nếu là Admin thì trỏ về admin.html, ngược lại về profile.html
+    authBtn.href = current.role === 'admin' ? 'admin.html' : 'profile.html';
     authBtn.innerHTML = `
       <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>

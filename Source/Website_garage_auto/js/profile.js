@@ -18,6 +18,12 @@ if (!currentUser) {
   window.location.href = 'auth.html';
 }
 
+// THÊM ĐOẠN NÀY: Nếu là Admin thì đá về Dashboard (Chỉ cần 1 lần)
+if (currentUser.role === 'admin') {
+  window.location.href = 'admin.html';
+  return;
+}
+
 // Render thông tin
 function renderInfo() {
   const u = getUser();

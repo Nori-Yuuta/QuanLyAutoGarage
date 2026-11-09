@@ -88,12 +88,12 @@
     }
   });
 
-  let list = accessoriesData;
-  let title = 'Phụ Kiện Ô Tô';
-  let desc = 'Chọn danh mục để xem các phụ kiện chính hãng, tương thích với nhiều dòng xe.';
+   // Lấy dữ liệu từ Admin (nếu có) hoặc mặc định từ data.js
+  let allAccs = JSON.parse(localStorage.getItem('db_accessories')) || accessoriesData;
+  let list = allAccs;
 
-  if (catParam) {
-    list = accessoriesData.filter(a =>
+ if (catParam) {
+    list = allAccs.filter(a =>
       a.category.toLowerCase() === catParam.toLowerCase()
     );
     title = `Phụ Kiện ${catParam}`;

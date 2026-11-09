@@ -30,8 +30,12 @@
   }
   function parsePrice(str) { return Number(String(str).replace(/[^\d]/g, '')) || 0; }
 
-  // Kiểm tra data đã load chưa
-  if (typeof carsData === 'undefined' || typeof accessoriesData === 'undefined') {
+  // ===== LẤY DỮ LIỆU TỪ LOCALSTORAGE (ĐỒNG BỘ VỚI ADMIN) =====
+  // Nếu Admin đã thêm/sửa, lấy từ db_cars / db_accessories. Nếu chưa, lấy từ data.js
+  const carsData = JSON.parse(localStorage.getItem('db_cars')) || (typeof window.carsData !== 'undefined' ? window.carsData : []);
+  const accessoriesData = JSON.parse(localStorage.getItem('db_accessories')) || (typeof window.accessoriesData !== 'undefined' ? window.accessoriesData : []);
+
+  if (carsData.length === 0 && accessoriesData.length === 0) {
     document.getElementById('product-detail').innerHTML =
       '<p style="padding:40px;text-align:center;color:#e63946">Lỗi: Không tải được dữ liệu sản phẩm. Vui lòng kiểm tra file js/data.js.</p>';
     return;
@@ -56,6 +60,14 @@
       '<p style="padding:40px;text-align:center;color:#888">Loại sản phẩm không hợp lệ.</p>';
   }
 
+  // Hàm hỗ trợ render ảnh (Xử lý cả Emoji và Ảnh Base64)
+  function renderImage(imgSrc, extraStyle = "") {
+    if (imgSrc && imgSrc.startsWith('data:image')) {
+      return `<img src="${imgSrc}" style="max-width:100%; max-height:100%; object-fit:contain; ${extraStyle}">`;
+    }
+    return `<span style="${extraStyle}">${imgSrc || '📦'}</span>`;
+  }
+
   /* ===== XE ===== */
   function renderCarDetail(carId) {
     const car = carsData.find(c => c.id === carId);
@@ -68,7 +80,9 @@
 
     document.getElementById('product-detail').innerHTML = `
       <div class="product-detail">
-        <div class="product-img">${car.img}</div>
+        <div class="product-img" style="background: #fff; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+          ${renderImage(car.img, 'font-size:140px')}
+        </div>
         <div class="product-info">
           <h1>${escapeHtml(car.name)}</h1>
           <p class="product-brand">${escapeHtml(car.brand)}</p>
@@ -99,7 +113,7 @@
   function renderCompatibleAccessories(carName) {
     const brandPrefix = carName.split(' ')[0].toLowerCase();
     const compat = accessoriesData.filter(a =>
-      a.compat.some(c => c.toLowerCase().includes(brandPrefix))
+      a.compat && a.compat.some(c => c.toLowerCase().includes(brandPrefix))
     );
 
     const section = document.getElementById('compat-section');
@@ -110,7 +124,7 @@
 
     grid.innerHTML = compat.map(acc => `
       <a class="card" href="product.html?type=acc&id=${acc.id}">
-        <div class="card-img">${acc.img}</div>
+        <div class="card-img" style="background:#fff;">${renderImage(acc.img, 'font-size:60px')}</div>
         <div class="card-body">
           <div class="card-brand">${escapeHtml(acc.category)}</div>
           <div class="card-title">${escapeHtml(acc.name)}</div>
@@ -132,7 +146,10 @@
 
     document.getElementById('product-detail').innerHTML = `
       <div class="product-detail">
-        <div class="product-img">${acc.img}</div>
+        <div class="product-img" style="background: #fff; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+          <!-- ĐÃ SỬA LỖI: Đổi car.img thành acc.img -->
+          ${renderImage(acc.img, 'font-size:140px')}
+        </div>
         <div class="product-info">
           <h1>${escapeHtml(acc.name)}</h1>
           <p class="product-brand">${escapeHtml(acc.category)}</p>
@@ -141,7 +158,7 @@
           <table class="specs-table">
             <tr><td>Chất liệu</td><td>${escapeHtml(acc.material)}</td></tr>
             <tr><td>Bảo hành</td><td>${escapeHtml(acc.warranty)}</td></tr>
-            <tr><td>Tương thích</td><td>${acc.compat.map(escapeHtml).join(', ')}</td></tr>
+            <tr><td>Tương thích</td><td>${acc.compat ? acc.compat.map(escapeHtml).join(', ') : 'Đang cập nhật'}</td></tr>
           </table>
           <div class="purchase-row">
             <div class="qty-control">
@@ -188,31 +205,24 @@
     document.getElementById('compat-section').classList.add('hidden');
   }
 
-function addToCart(acc, qty) {
-  const cart = loadCart();
-  const existing = cart.find(i => i.id === acc.id);
+  function addToCart(acc, qty) {
+    const cart = loadCart();
+    const existing = cart.find(i => i.id === acc.id);
 
-  if (existing) {
-    existing.qty += qty;
-  } else {
-    cart.push({
-      id: acc.id,
-      name: acc.name,
-      price: parsePrice(acc.price),
-      img: acc.img,
-      category: acc.category,
-      qty: qty
-    });
+    if (existing) {
+      existing.qty += qty;
+    } else {
+      cart.push({
+        id: acc.id,
+        name: acc.name,
+        price: parsePrice(acc.price),
+        img: acc.img, // Lưu cả base64 hoặc emoji
+        category: acc.category,
+        qty: qty
+      });
+    }
+
+    saveCart(cart);
+    console.log('✅ Đã thêm vào giỏ:', cart);
   }
-
-  // Lưu — dùng đúng key
-  localStorage.setItem('autogarage_cart', JSON.stringify(cart));
-
-  // ⚠️ QUAN TRỌNG: log để debug
-  console.log('✅ Đã thêm vào giỏ:', cart);
-  console.log('📦 localStorage.autogarage_cart =',
-    localStorage.getItem('autogarage_cart'));
-
-  updateCartCount();
-}
 })();

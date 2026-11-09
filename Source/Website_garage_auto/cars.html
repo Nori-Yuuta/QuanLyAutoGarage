@@ -93,12 +93,12 @@
   });
 
   // Lọc dữ liệu
-  let list = carsData;
-  let title = 'Xe Đang Bán';
-  let desc = 'Chọn hãng xe để xem các mẫu xe chính hãng có sẵn tại AutoGarage.';
+  // Lấy dữ liệu từ Admin (nếu có) hoặc mặc định từ data.js
+  let allCars = JSON.parse(localStorage.getItem('db_cars')) || carsData;
+  let list = allCars;
 
   if (brandParam) {
-    list = carsData.filter(c => c.brand.toLowerCase().includes(brandParam));
+    list = allCars.filter(c => c.brand.toLowerCase().includes(brandParam));
     const brandLabel = list[0] ? list[0].brand : brandParam.toUpperCase();
     title = `Xe ${brandLabel}`;
     desc = `Danh sách xe ${brandLabel} chính hãng đang có tại AutoGarage.`;

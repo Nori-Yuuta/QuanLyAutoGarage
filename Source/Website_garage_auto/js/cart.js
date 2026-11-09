@@ -13,17 +13,14 @@
   function loadCart() {
     try {
       const raw = localStorage.getItem(CART_KEY);
-      console.log('📥 Đọc cart từ localStorage:', raw);
       return JSON.parse(raw) || [];
     } catch (e) {
-      console.error('❌ Lỗi đọc cart:', e);
       return [];
     }
   }
 
   function saveCart(cart) {
     localStorage.setItem(CART_KEY, JSON.stringify(cart));
-    console.log('💾 Đã lưu cart:', cart);
   }
 
   function formatPrice(n) {
@@ -35,13 +32,19 @@
   const itemsEl = document.getElementById('cart-items');
 
   if (!emptyEl || !contentEl || !itemsEl) {
-    console.error('❌ cart.html thiếu phần tử: #cart-empty, #cart-content, hoặc #cart-items');
     return;
+  }
+
+  // ===== SỬA LỖI: Hàm render ảnh an toàn =====
+  function renderCartImage(imgSrc) {
+    if (imgSrc && imgSrc.startsWith('data:image')) {
+      return `<img src="${imgSrc}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">`;
+    }
+    return `<span style="font-size:36px;">${imgSrc || '📦'}</span>`;
   }
 
   function render() {
     const cart = loadCart();
-    console.log('🛒 Render với', cart.length, 'sản phẩm');
 
     if (!cart.length) {
       emptyEl.style.display = 'block';
@@ -54,7 +57,8 @@
 
     itemsEl.innerHTML = cart.map(item => `
       <div class="cart-item" data-id="${item.id}">
-        <div class="cart-item-img">${item.img || '📦'}</div>
+        <!-- SỬA LỖI: Render ảnh an toàn -->
+        <div class="cart-item-img" style="background:#fff;">${renderCartImage(item.img)}</div>
         <div class="cart-item-info">
           <h4>${item.name}</h4>
           <small>${item.category || ''}</small>
@@ -120,10 +124,8 @@
     });
   }
 
-  // Render lần đầu
   render();
 
-  // Lắng nghe thay đổi storage từ tab khác (optional)
   window.addEventListener('storage', e => {
     if (e.key === CART_KEY) render();
   });

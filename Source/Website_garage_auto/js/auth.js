@@ -23,7 +23,7 @@ function showForm(name) {
   document.getElementById('register-form').classList.toggle('hidden', name !== 'register');
 }
 
-// Helpers user store
+// Helpers
 const USER_KEY = 'autogarage_users';
 const CURRENT_KEY = 'autogarage_current';
 
@@ -38,7 +38,30 @@ function setCurrent(user) {
   localStorage.setItem(CURRENT_KEY, JSON.stringify(user));
 }
 
-// Đăng ký
+// ==========================================
+// TỰ ĐỘNG KHỞI TẠO TÀI KHOẢN ADMIN (CHỈ CHẠY 1 LẦN)
+// ==========================================
+function initAdminAccount() {
+  const users = loadUsers();
+  // Kiểm tra xem đã có tài khoản admin nào chưa
+  if (!users.some(u => u.email === 'admin@autogarage.vn')) {
+    users.push({
+      name: 'Quản Trị Viên',
+      email: 'admin@autogarage.vn',
+      phone: '0999999999',
+      password: 'admin123',
+      role: 'admin',
+      createdAt: new Date().toISOString()
+    });
+    saveUsers(users);
+    console.log('✅ Đã tự động tạo tài khoản Admin: admin@autogarage.vn / admin123');
+  }
+}
+// Gọi hàm khởi tạo ngay khi tải trang
+initAdminAccount();
+
+
+// Đăng ký (Mặc định role là 'customer')
 document.getElementById('register-form').addEventListener('submit', e => {
   e.preventDefault();
   const f = e.target;
@@ -48,6 +71,7 @@ document.getElementById('register-form').addEventListener('submit', e => {
     phone: f.phone.value.trim(),
     password: f.password.value,
     confirm: f.confirm.value,
+    role: 'customer', // Mặc định là khách hàng
     createdAt: new Date().toISOString()
   };
 
@@ -75,7 +99,7 @@ document.getElementById('register-form').addEventListener('submit', e => {
   }, 1200);
 });
 
-// Đăng nhập
+// Đăng nhập (Có phân quyền)
 document.getElementById('login-form').addEventListener('submit', e => {
   e.preventDefault();
   const f = e.target;
@@ -83,6 +107,7 @@ document.getElementById('login-form').addEventListener('submit', e => {
   const password = f.password.value;
 
   const users = loadUsers();
+  // Tìm user khớp email & pass
   const user = users.find(u => u.email === email && u.password === password);
 
   if (!user) {
@@ -90,7 +115,23 @@ document.getElementById('login-form').addEventListener('submit', e => {
     return;
   }
 
+  // Lưu user vào phiên hiện tại
   setCurrent(user);
+  
+  // Log kiểm tra (Mở F12 xem có in ra không)
+  console.log('Đăng nhập thành công:', user);
+  console.log('Role của user này là:', user.role);
+
   Toast.success('Chào mừng trở lại!', `Xin chào ${user.name}`);
-  setTimeout(() => { window.location.href = 'profile.html'; }, 900);
+  
+  // CHUYỂN HƯỚNG DỰA VÀO ROLE
+  setTimeout(() => { 
+    if (user.role === 'admin') {
+      console.log('Chuyển hướng tới admin.html...');
+      window.location.href = 'admin.html';
+    } else {
+      console.log('Chuyển hướng tới profile.html...');
+      window.location.href = 'profile.html';
+    }
+  }, 1000); // Đợi 1 giây để Toast kịp hiện
 });
