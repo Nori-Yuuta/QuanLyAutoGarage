@@ -1,0 +1,121 @@
+@model List<AutoGarageMVC.Models.Entities.Event>
+@{
+    Layout = "_AdminLayout";
+    ViewBag.Title = "Quản Lý Sự Kiện";
+    ViewBag.Heading = "Quản Lý Sự Kiện Khuyến Mãi";
+}
+
+<div class="tab-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+  <h2>Danh Sách Sự Kiện Khuyến Mãi (@Model.Count)</h2>
+  <button class="admin-btn primary" onclick="openEventModal()">+ Thêm Sự Kiện</button>
+</div>
+
+<div class="admin-card">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Tên Sự Kiện</th>
+        <th>Mã Giảm Giá</th>
+        <th>Thời Gian Kết Thúc</th>
+        <th>Trạng Thái</th>
+        <th>Hành Động</th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach (var e in Model)
+      {
+        <tr>
+          <td>#@e.Id</td>
+          <td><strong>@e.Name</strong></td>
+          <td><span style="background:#fff3cd;color:#856404;padding:3px 8px;border-radius:4px;font-weight:700">@e.Code</span></td>
+          <td>@e.EndDate.ToString("dd/MM/yyyy HH:mm")</td>
+          <td>
+            <span style="background:@(e.Status == "Đang diễn ra" ? "#d4edda" : "#f8d7da");color:@(e.Status == "Đang diễn ra" ? "#155724" : "#721c24");padding:3px 8px;border-radius:4px;font-size:12px;font-weight:600">
+              @e.Status
+            </span>
+          </td>
+          <td style="white-space:nowrap">
+            <button class="admin-btn warning" style="padding:6px 12px;font-size:12px;" onclick='editEvent(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(e)))'>Sửa</button>
+            <form method="post" action="/Admin/DeleteEvent" style="display:inline" onsubmit="return confirm('Bạn có chắc muốn xóa sự kiện này?')">
+              @Html.AntiForgeryToken()
+              <input type="hidden" name="id" value="@e.Id" />
+              <button type="submit" class="admin-btn danger" style="padding:6px 12px;font-size:12px;">Xóa</button>
+            </form>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<!-- MODAL THÊM / SỬA SỰ KIỆN -->
+<div id="event-modal" class="admin-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+  <div class="admin-modal-content" style="background:#fff;padding:30px;border-radius:10px;max-width:550px;width:90%;position:relative;">
+    <button class="admin-modal-close" onclick="closeEventModal()" style="position:absolute;top:15px;right:20px;background:none;border:none;font-size:24px;cursor:pointer;">&times;</button>
+    <h2 id="modal-event-title" style="margin-top:0">Thêm Sự Kiện</h2>
+
+    <form method="post" action="/Admin/SaveEvent">
+      @Html.AntiForgeryToken()
+      <input type="hidden" id="event-id" name="Id" value="0" />
+
+      <div class="form-group" style="margin-bottom:15px">
+        <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Tên sự kiện *</label>
+        <input type="text" id="event-name" name="Name" required style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px" />
+      </div>
+
+      <div class="form-group" style="margin-bottom:15px">
+        <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Mã giảm giá *</label>
+        <input type="text" id="event-code" name="Code" required placeholder="SALE30, FLASH50..." style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px;text-transform:uppercase" />
+      </div>
+
+      <div class="form-group" style="margin-bottom:15px">
+        <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Thời gian kết thúc *</label>
+        <input type="datetime-local" id="event-date" name="EndDate" required style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px" />
+      </div>
+
+      <div class="form-group" style="margin-bottom:20px">
+        <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Trạng thái *</label>
+        <select id="event-status" name="Status" style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px">
+          <option value="Đang diễn ra">Đang diễn ra</option>
+          <option value="Đã kết thúc">Đã kết thúc</option>
+          <option value="Sắp diễn ra">Sắp diễn ra</option>
+        </select>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px">
+        <button type="button" class="admin-btn outline" onclick="closeEventModal()">Hủy</button>
+        <button type="submit" class="admin-btn primary">Lưu Sự Kiện</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+@section Scripts {
+  <script>
+    function openEventModal() {
+      document.getElementById('modal-event-title').textContent = 'Thêm Sự Kiện';
+      document.getElementById('event-id').value = '0';
+      document.getElementById('event-name').value = '';
+      document.getElementById('event-code').value = '';
+      document.getElementById('event-status').value = 'Đang diễn ra';
+      document.getElementById('event-modal').style.display = 'flex';
+    }
+
+    function editEvent(e) {
+      document.getElementById('modal-event-title').textContent = 'Chỉnh Sửa Sự Kiện';
+      document.getElementById('event-id').value = e.Id;
+      document.getElementById('event-name').value = e.Name || '';
+      document.getElementById('event-code').value = e.Code || '';
+      if (e.EndDate) {
+        document.getElementById('event-date').value = e.EndDate.substring(0, 16);
+      }
+      document.getElementById('event-status').value = e.Status || 'Đang diễn ra';
+      document.getElementById('event-modal').style.display = 'flex';
+    }
+
+    function closeEventModal() {
+      document.getElementById('event-modal').style.display = 'none';
+    }
+  </script>
+}

@@ -1,0 +1,161 @@
+@{
+    var currentUser = User.Identity?.IsAuthenticated == true
+        ? User.FindFirst("DisplayName")?.Value : null;
+    var isAdmin = User.IsInRole("admin");
+    var cartCount = Context.RequestServices.GetService<CartService>()?.Count ?? 0;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>@ViewBag.Title — AutoGarage</title>
+  <link rel="stylesheet" href="~/css/style.css" />
+  <link rel="stylesheet" href="~/css/page.css" />
+  <link rel="stylesheet" href="~/css/toast.css" />
+  <link rel="stylesheet" href="~/css/loading.css" />
+  @RenderSection("Styles", false)
+</head>
+<body>
+
+<!-- ========== LOADING SCREEN ANIMATION ========== -->
+<div id="loading-screen">
+  <div class="road">
+    <div class="road-line"></div>
+  </div>
+
+  <div class="car-container">
+    <div class="car">
+      <svg class="car-svg" viewBox="0 0 260 100" xmlns="http://www.w3.org/2000/svg">
+        <path d="M30 70 Q35 40 70 35 L95 20 Q110 12 140 12 L180 20 Q210 30 225 55 L240 65 Q245 70 240 78 L230 80 L30 80 Z"
+              fill="#ffffff" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M100 25 L135 18 L170 25 L185 55 L95 55 Z"
+              fill="#000000" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/>
+        <circle cx="70" cy="80" r="14" fill="#ffffff" stroke="#ffffff" stroke-width="2"/>
+        <circle cx="70" cy="80" r="6"  fill="#000000"/>
+        <circle cx="195" cy="80" r="14" fill="#ffffff" stroke="#ffffff" stroke-width="2"/>
+        <circle cx="195" cy="80" r="6"  fill="#000000"/>
+        <rect x="225" y="55" width="14" height="7" rx="2" fill="#ffffff"/>
+      </svg>
+    </div>
+  </div>
+
+  <button id="enter-btn" class="enter-btn" type="button">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:8px">
+      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+    </svg>
+    <span>NHẤN ĐỂ VÀO GARAGE</span>
+  </button>
+</div>
+
+<!-- ========== MAIN SITE WRAPPER ========== -->
+<div id="main-site" class="main-site-hidden">
+  <header class="site-header">
+    <a href="/" class="logo">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px">
+        <path d="M5 17h14M5 17l1.5-6.5A2 2 0 0 1 8.4 9h7.2a2 2 0 0 1 1.9 1.5L19 17M5 17v3M19 17v3"></path>
+        <circle cx="7.5" cy="19" r="1.5"></circle>
+        <circle cx="16.5" cy="19" r="1.5"></circle>
+      </svg>
+      AutoGarage
+    </a>
+
+    <nav class="main-nav">
+      <ul class="menu">
+        <li class="menu-item"><a href="/" class="menu-link">Trang Chủ</a></li>
+        <li class="menu-item has-dropdown">
+          <a href="/Cars" class="menu-link">Các Hãng Xe ▾</a>
+          <ul class="dropdown">
+            <li><a href="/Cars">Tất Cả Hãng Xe</a></li>
+            <li class="dropdown-group">Hãng Xe Nổi Tiếng</li>
+            <li><a href="/Cars?brand=toyota">Toyota</a></li>
+            <li><a href="/Cars?brand=honda">Honda</a></li>
+            <li><a href="/Cars?brand=ford">Ford</a></li>
+            <li><a href="/Cars?brand=mazda">Mazda</a></li>
+            <li><a href="/Cars?brand=bmw">BMW</a></li>
+            <li><a href="/Cars?brand=mercedes">Mercedes-Benz</a></li>
+          </ul>
+        </li>
+        <li class="menu-item has-dropdown">
+          <a href="/Accessories" class="menu-link">Phụ Kiện ▾</a>
+          <ul class="dropdown">
+            <li><a href="/Accessories">Tất Cả Phụ Kiện</a></li>
+            <li class="dropdown-group">Theo Danh Mục</li>
+            <li><a href="/Accessories?category=Nội thất">Nội thất</a></li>
+            <li><a href="/Accessories?category=Ngoại thất">Ngoại thất</a></li>
+            <li><a href="/Accessories?category=An toàn">An toàn</a></li>
+            <li><a href="/Accessories?category=Vận hành">Vận hành</a></li>
+          </ul>
+        </li>
+        <li class="menu-item"><a href="/Home/News" class="menu-link">Tin Tức</a></li>
+        <li class="menu-item"><a href="/Home/About" class="menu-link">Thông Tin Cửa Hàng</a></li>
+      </ul>
+    </nav>
+
+    <div class="header-actions">
+      <a href="/Cart" class="btn-cart">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="9" cy="21" r="1"></circle>
+          <circle cx="20" cy="21" r="1"></circle>
+          <path d="M1 1h4l2.6 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"></path>
+        </svg>
+        <span class="cart-count">@cartCount</span>
+      </a>
+
+      @if (currentUser != null)
+      {
+        if (isAdmin) {
+          <a href="/Admin/Dashboard" class="header-login-btn">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            @currentUser (Admin)
+          </a>
+        } else {
+          <a href="/Profile" class="header-login-btn">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            @currentUser
+          </a>
+        }
+        <form method="post" action="/Auth/Logout" style="display:inline">
+          @Html.AntiForgeryToken()
+          <button class="header-login-btn" type="submit" style="background:none;border:1px solid #ddd;cursor:pointer">Đăng Xuất</button>
+        </form>
+      }
+      else
+      {
+        <a href="/Auth/Login" class="header-login-btn">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          Đăng nhập
+        </a>
+      }
+    </div>
+  </header>
+
+  <main>@RenderBody()</main>
+
+  <partial name="_Footer" />
+</div>
+
+<partial name="_Toast" />
+
+<script src="~/js/toast.js"></script>
+<script src="~/js/loading.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.__toast && window.Toast) {
+      const t = window.__toast;
+      (Toast[t.type] || Toast.info)(t.title, t.msg);
+    }
+  });
+</script>
+@RenderSection("Scripts", false)
+</body>
+</html>

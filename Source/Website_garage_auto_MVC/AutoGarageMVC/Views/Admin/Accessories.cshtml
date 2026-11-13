@@ -1,0 +1,172 @@
+@model List<AutoGarageMVC.Models.Entities.Accessory>
+@{
+    Layout = "_AdminLayout";
+    ViewBag.Title = "Quản Lý Phụ Kiện";
+    ViewBag.Heading = "Quản Lý Danh Sách Phụ Kiện";
+}
+
+<div class="tab-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+  <h2>Danh Sách Phụ Kiện (@Model.Count)</h2>
+  <div style="display:flex;gap:10px">
+    <button class="admin-btn primary" onclick="openAccModal()">+ Thêm Phụ Kiện</button>
+  </div>
+</div>
+
+<div class="admin-card">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Hình</th>
+        <th>Tên Phụ Kiện</th>
+        <th>Danh Mục</th>
+        <th>Giá</th>
+        <th>Chất Liệu</th>
+        <th>Bảo Hành</th>
+        <th>Hành Động</th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach (var a in Model)
+      {
+        <tr>
+          <td>#@a.Id</td>
+          <td>
+            @if (a.ImageUrl != null && a.ImageUrl.StartsWith("/uploads"))
+            {
+              <img src="@a.ImageUrl" style="width:40px;height:40px;object-fit:cover;border-radius:4px" />
+            }
+            else
+            {
+              <span style="font-size:24px">@a.ImageUrl</span>
+            }
+          </td>
+          <td><strong>@a.Name</strong></td>
+          <td><span style="background:#f0f0f0;padding:2px 8px;border-radius:4px;font-size:12px">@a.Category</span></td>
+          <td style="color:#e63946;font-weight:600">@a.Price</td>
+          <td>@a.Material</td>
+          <td>@a.Warranty</td>
+          <td style="white-space:nowrap">
+            <button class="admin-btn warning" style="padding:6px 12px;font-size:12px;" onclick='editAcc(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(a)))'>Sửa</button>
+            <form method="post" action="/Admin/DeleteAccessory" style="display:inline" onsubmit="return confirm('Bạn có chắc muốn xóa phụ kiện này?')">
+              @Html.AntiForgeryToken()
+              <input type="hidden" name="id" value="@a.Id" />
+              <button type="submit" class="admin-btn danger" style="padding:6px 12px;font-size:12px;">Xóa</button>
+            </form>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<!-- MODAL THÊM / SỬA PHỤ KIỆN -->
+<div id="acc-modal" class="admin-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+  <div class="admin-modal-content" style="background:#fff;padding:30px;border-radius:10px;max-width:650px;width:90%;max-height:90vh;overflow-y:auto;position:relative;">
+    <button class="admin-modal-close" onclick="closeAccModal()" style="position:absolute;top:15px;right:20px;background:none;border:none;font-size:24px;cursor:pointer;">&times;</button>
+    <h2 id="modal-acc-title" style="margin-top:0">Thêm Phụ Kiện Mới</h2>
+
+    <form method="post" action="/Admin/SaveAccessory" enctype="multipart/form-data">
+      @Html.AntiForgeryToken()
+      <input type="hidden" id="acc-id" name="Id" value="0" />
+
+      <!-- IMPORT EXCEL -->
+      <div style="background:#f8f9fa;padding:12px;border-radius:6px;border:1px dashed #ccc;margin-bottom:15px">
+        <label style="font-weight:600;font-size:13px">Hoặc nhập hàng loạt từ file Excel (.xlsx):</label>
+        <input type="file" name="excelFile" accept=".xlsx" style="margin-top:6px;display:block;width:100%" />
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+        <div class="form-group">
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Tên phụ kiện *</label>
+          <input type="text" id="acc-name" name="Name" required style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px" />
+        </div>
+        <div class="form-group">
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Danh mục *</label>
+          <select id="acc-category" name="Category" required style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px">
+            <option value="Nội thất">Nội thất</option>
+            <option value="Ngoại thất">Ngoại thất</option>
+            <option value="An toàn">An toàn</option>
+            <option value="Vận hành">Vận hành</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:12px">
+        <div class="form-group">
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Giá bán *</label>
+          <input type="text" id="acc-price" name="Price" required placeholder="15.000.000 ₫" style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px" />
+        </div>
+        <div class="form-group">
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Bảo hành</label>
+          <input type="text" id="acc-warranty" name="Warranty" placeholder="24 tháng" style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px" />
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:12px">
+        <div class="form-group">
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Chất liệu</label>
+          <input type="text" id="acc-material" name="Material" placeholder="Da bò thật, Carbon fiber..." style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px" />
+        </div>
+        <div class="form-group">
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Xe tương thích (cách nhau bởi dấu phẩy)</label>
+          <input type="text" id="acc-compat" name="Compat" placeholder="Toyota Camry, Honda CR-V..." style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px" />
+        </div>
+      </div>
+
+      <div style="margin-top:12px">
+        <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Hình ảnh (Upload file ảnh hoặc URL ảnh):</label>
+        <div style="display:flex;gap:10px">
+          <input type="file" name="imageFile" accept="image/*" style="flex:1" />
+          <input type="text" id="acc-img" name="ImageUrl" placeholder="Hoặc URL ảnh / biểu tượng" style="width:200px;padding:8px 10px;border:1px solid #ddd;border-radius:6px" />
+        </div>
+      </div>
+
+      <div style="margin-top:12px">
+        <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Mô tả phụ kiện</label>
+        <textarea id="acc-desc" name="Description" rows="3" style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px"></textarea>
+      </div>
+
+      <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:10px">
+        <button type="button" class="admin-btn outline" onclick="closeAccModal()">Hủy</button>
+        <button type="submit" class="admin-btn primary">Lưu Dữ Liệu</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+@section Scripts {
+  <script>
+    function openAccModal() {
+      document.getElementById('modal-acc-title').textContent = 'Thêm Phụ Kiện Mới';
+      document.getElementById('acc-id').value = '0';
+      document.getElementById('acc-name').value = '';
+      document.getElementById('acc-category').value = 'Nội thất';
+      document.getElementById('acc-price').value = '';
+      document.getElementById('acc-warranty').value = '';
+      document.getElementById('acc-material').value = '';
+      document.getElementById('acc-compat').value = '';
+      document.getElementById('acc-img').value = '';
+      document.getElementById('acc-desc').value = '';
+      document.getElementById('acc-modal').style.display = 'flex';
+    }
+
+    function editAcc(acc) {
+      document.getElementById('modal-acc-title').textContent = 'Chỉnh Sửa Phụ Kiện';
+      document.getElementById('acc-id').value = acc.Id;
+      document.getElementById('acc-name').value = acc.Name || '';
+      document.getElementById('acc-category').value = acc.Category || 'Nội thất';
+      document.getElementById('acc-price').value = acc.Price || '';
+      document.getElementById('acc-warranty').value = acc.Warranty || '';
+      document.getElementById('acc-material').value = acc.Material || '';
+      document.getElementById('acc-compat').value = acc.Compat || '';
+      document.getElementById('acc-img').value = acc.ImageUrl || '';
+      document.getElementById('acc-desc').value = acc.Description || '';
+      document.getElementById('acc-modal').style.display = 'flex';
+    }
+
+    function closeAccModal() {
+      document.getElementById('acc-modal').style.display = 'none';
+    }
+  </script>
+}

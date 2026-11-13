@@ -1,0 +1,83 @@
+@{
+    Layout = "_AdminLayout";
+    ViewBag.Title = "Tổng Quan Hệ Thống";
+    ViewBag.Heading = "Tổng Quan Hệ Thống";
+    var revenue = (decimal)ViewBag.Revenue;
+    var orderCount = (int)ViewBag.OrderCount;
+    var carCount = (int)ViewBag.CarCount;
+    var accCount = (int)ViewBag.AccCount;
+    var recentOrders = (List<Order>)ViewBag.RecentOrders;
+}
+
+<div class="stats-grid">
+  <div class="stat-box">
+    <div class="stat-icon">
+      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+    </div>
+    <div class="stat-info">
+      <h3>Tổng Doanh Thu</h3>
+      <p id="stat-revenue">@revenue.ToString("N0") ₫</p>
+    </div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-icon">
+      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+    </div>
+    <div class="stat-info">
+      <h3>Tổng Đơn Hàng</h3>
+      <p id="stat-orders">@orderCount</p>
+    </div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-icon">
+      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M5 17l1.5-6.5A2 2 0 0 1 8.4 9h7.2a2 2 0 0 1 1.9 1.5L19 17M5 17v3M19 17v3"></path><circle cx="7.5" cy="19" r="1.5"></circle><circle cx="16.5" cy="19" r="1.5"></circle></svg>
+    </div>
+    <div class="stat-info">
+      <h3>Số Lượng Xe</h3>
+      <p id="stat-cars">@carCount</p>
+    </div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-icon">
+      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+    </div>
+    <div class="stat-info">
+      <h3>Số Lượng Phụ Kiện</h3>
+      <p id="stat-accs">@accCount</p>
+    </div>
+  </div>
+</div>
+
+<div class="admin-card" style="margin-top:30px">
+  <h3>Đơn Hàng Gần Đây</h3>
+  @if (!recentOrders.Any())
+  {
+    <p style="color:#888;padding:20px;text-align:center">Chưa có đơn hàng nào trong hệ thống.</p>
+  }
+  else
+  {
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Mã Đơn</th>
+          <th>Khách Hàng</th>
+          <th>SĐT</th>
+          <th>Tổng Tiền</th>
+          <th>Ngày Đặt</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var o in recentOrders)
+        {
+          <tr>
+            <td><strong>@o.OrderCode</strong></td>
+            <td>@o.RecipientName</td>
+            <td>@o.RecipientPhone</td>
+            <td style="color:#e63946;font-weight:700">@o.Total.ToString("N0") ₫</td>
+            <td>@o.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

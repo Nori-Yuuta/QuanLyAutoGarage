@@ -1,0 +1,188 @@
+@model List<AutoGarageMVC.Models.Entities.Car>
+@{
+    Layout = "_AdminLayout";
+    ViewBag.Title = "Quản Lý Xe";
+    ViewBag.Heading = "Quản Lý Danh Sách Xe";
+}
+
+<div class="tab-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+  <h2>Danh Sách Xe (@Model.Count)</h2>
+  <div style="display:flex;gap:10px">
+    <button class="admin-btn primary" onclick="openCarModal()">+ Thêm Xe Mới</button>
+  </div>
+</div>
+
+<div class="admin-card">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Hình</th>
+        <th>Tên Xe</th>
+        <th>Hãng</th>
+        <th>Giá</th>
+        <th>Năm SX</th>
+        <th>Động Cơ</th>
+        <th>Hành Động</th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach (var c in Model)
+      {
+        <tr>
+          <td>#@c.Id</td>
+          <td>
+            @if (c.ImageUrl != null && c.ImageUrl.StartsWith("/uploads"))
+            {
+              <img src="@c.ImageUrl" style="width:40px;height:40px;object-fit:cover;border-radius:4px" />
+            }
+            else
+            {
+              <span style="font-size:24px">@c.ImageUrl</span>
+            }
+          </td>
+          <td><strong>@c.Name</strong></td>
+          <td>@c.Brand</td>
+          <td style="color:#e63946;font-weight:600">@c.Price</td>
+          <td>@c.Year</td>
+          <td>@c.Engine</td>
+          <td style="white-space:nowrap">
+            <button class="admin-btn warning" style="padding:6px 12px;font-size:12px;" onclick='editCar(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(c)))'>Sửa</button>
+            <form method="post" action="/Admin/DeleteCar" style="display:inline" onsubmit="return confirm('Bạn có chắc muốn xóa xe này?')">
+              @Html.AntiForgeryToken()
+              <input type="hidden" name="id" value="@c.Id" />
+              <button type="submit" class="admin-btn danger" style="padding:6px 12px;font-size:12px;">Xóa</button>
+            </form>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<!-- MODAL THÊM / SỬA XE -->
+<div id="car-modal" class="admin-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+  <div class="admin-modal-content" style="background:#fff;padding:30px;border-radius:10px;max-width:650px;width:90%;max-height:90vh;overflow-y:auto;position:relative;">
+    <button class="admin-modal-close" onclick="closeCarModal()" style="position:absolute;top:15px;right:20px;background:none;border:none;font-size:24px;cursor:pointer;">&times;</button>
+    <h2 id="modal-car-title" style="margin-top:0">Thêm Xe Mới</h2>
+
+    <form method="post" action="/Admin/SaveCar" enctype="multipart/form-data">
+      @Html.AntiForgeryToken()
+      <input type="hidden" id="car-id" name="Id" value="0" />
+
+      <!-- IMPORT EXCEL -->
+      <div style="background:#f8f9fa;padding:12px;border-radius:6px;border:1px dashed #ccc;margin-bottom:15px">
+        <label style="font-weight:600;font-size:13px">Hoặc nhập hàng loạt từ file Excel (.xlsx):</label>
+        <input type="file" name="excelFile" accept=".xlsx" style="margin-top:6px;display:block;width:100%" />
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+        <div class="form-group">
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Tên xe *</label>
+          <input type="text" id="car-name" name="Name" required style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px" />
+        </div>
+        <div class="form-group">
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Hãng xe *</label>
+          <input type="text" id="car-brand" name="Brand" required placeholder="Toyota, Honda, BMW..." style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px" />
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:12px">
+        <div class="form-group">
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Giá bán *</label>
+          <input type="text" id="car-price" name="Price" required placeholder="1.150.000.000 ₫" style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px" />
+        </div>
+        <div class="form-group">
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Năm sản xuất</label>
+          <input type="number" id="car-year" name="Year" value="2024" style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px" />
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:12px">
+        <div class="form-group">
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Động cơ</label>
+          <input type="text" id="car-engine" name="Engine" placeholder="2.5L Hybrid" style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px" />
+        </div>
+        <div class="form-group">
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Nhiên liệu</label>
+          <input type="text" id="car-fuel" name="Fuel" placeholder="Xăng / Hybrid / Dầu" style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px" />
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px;margin-top:12px">
+        <div class="form-group">
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Số chỗ</label>
+          <input type="number" id="car-seats" name="Seats" value="5" style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px" />
+        </div>
+        <div class="form-group">
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Hộp số</label>
+          <input type="text" id="car-trans" name="Transmission" placeholder="Tự động 8 cấp" style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px" />
+        </div>
+        <div class="form-group">
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Xuất xứ</label>
+          <input type="text" id="car-origin" name="Origin" placeholder="Nhật Bản" style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px" />
+        </div>
+      </div>
+
+      <div style="margin-top:12px">
+        <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Hình ảnh (Upload file ảnh hoặc URL ảnh):</label>
+        <div style="display:flex;gap:10px">
+          <input type="file" name="imageFile" accept="image/*" style="flex:1" />
+          <input type="text" id="car-img" name="ImageUrl" placeholder="Hoặc URL ảnh / biểu tượng" style="width:200px;padding:8px 10px;border:1px solid #ddd;border-radius:6px" />
+        </div>
+      </div>
+
+      <div style="margin-top:12px">
+        <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Mô tả xe</label>
+        <textarea id="car-desc" name="Description" rows="3" style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px"></textarea>
+      </div>
+
+      <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:10px">
+        <button type="button" class="admin-btn outline" onclick="closeCarModal()">Hủy</button>
+        <button type="submit" class="admin-btn primary">Lưu Dữ Liệu</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+@section Scripts {
+  <script>
+    function openCarModal() {
+      document.getElementById('modal-car-title').textContent = 'Thêm Xe Mới';
+      document.getElementById('car-id').value = '0';
+      document.getElementById('car-name').value = '';
+      document.getElementById('car-brand').value = '';
+      document.getElementById('car-price').value = '';
+      document.getElementById('car-year').value = '2024';
+      document.getElementById('car-engine').value = '';
+      document.getElementById('car-fuel').value = '';
+      document.getElementById('car-seats').value = '5';
+      document.getElementById('car-trans').value = '';
+      document.getElementById('car-origin').value = '';
+      document.getElementById('car-img').value = '';
+      document.getElementById('car-desc').value = '';
+      document.getElementById('car-modal').style.display = 'flex';
+    }
+
+    function editCar(car) {
+      document.getElementById('modal-car-title').textContent = 'Chỉnh Sửa Thông Tin Xe';
+      document.getElementById('car-id').value = car.Id;
+      document.getElementById('car-name').value = car.Name || '';
+      document.getElementById('car-brand').value = car.Brand || '';
+      document.getElementById('car-price').value = car.Price || '';
+      document.getElementById('car-year').value = car.Year || 2024;
+      document.getElementById('car-engine').value = car.Engine || '';
+      document.getElementById('car-fuel').value = car.Fuel || '';
+      document.getElementById('car-seats').value = car.Seats || 5;
+      document.getElementById('car-trans').value = car.Transmission || '';
+      document.getElementById('car-origin').value = car.Origin || '';
+      document.getElementById('car-img').value = car.ImageUrl || '';
+      document.getElementById('car-desc').value = car.Description || '';
+      document.getElementById('car-modal').style.display = 'flex';
+    }
+
+    function closeCarModal() {
+      document.getElementById('car-modal').style.display = 'none';
+    }
+  </script>
+}

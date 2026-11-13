@@ -1,0 +1,47 @@
+@model List<AutoGarageMVC.Models.Entities.ChatMessage>
+@{
+    Layout = "_AdminLayout";
+    ViewBag.Title = "Chat Hỗ Trợ Khách Hàng";
+    ViewBag.Heading = "Hộp Thư Tư Vấn Trực Tuyến";
+}
+
+<div class="chat-container">
+  <div class="chat-sidebar">
+    <h3>Khách Hàng</h3>
+    <div class="chat-user-list">
+      <div class="chat-user active">
+        <div class="avatar" style="width:36px;height:36px;font-size:16px;">K</div>
+        <div>
+          <h4>Khách Hàng Trực Tuyến</h4>
+          <small style="color:#2ecc71">● Đang hoạt động</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-main">
+    <div class="chat-messages" id="chat-messages" style="display:flex;flex-direction:column;gap:12px;padding:20px;overflow-y:auto;flex:1;">
+      @foreach (var msg in Model)
+      {
+        var isReceived = msg.From == "customer";
+        <div class="msg @(isReceived ? "received" : "sent")" style="max-width:70%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.4;align-self:@(isReceived ? "flex-start" : "flex-end");background:@(isReceived ? "#e9ecef" : "#1a1a1a");color:@(isReceived ? "#333" : "#ffcc00");">
+          <div style="font-size:11px;opacity:0.7;margin-bottom:4px">@msg.Sender • @msg.Time.ToString("HH:mm")</div>
+          <div>@msg.Text</div>
+        </div>
+      }
+    </div>
+
+    <form class="chat-input-area" method="post" action="/Admin/SendAdminChat" style="display:flex;gap:10px;padding:15px;border-top:1px solid #eee;background:#fff;">
+      @Html.AntiForgeryToken()
+      <input type="text" name="text" placeholder="Nhập tin nhắn phản hồi cho khách..." autocomplete="off" required style="flex:1;padding:10px 14px;border:1px solid #ddd;border-radius:6px;outline:none;" />
+      <button type="submit" class="admin-btn primary">Gửi</button>
+    </form>
+  </div>
+</div>
+
+@section Scripts {
+  <script>
+    const box = document.getElementById('chat-messages');
+    if (box) box.scrollTop = box.scrollHeight;
+  </script>
+}

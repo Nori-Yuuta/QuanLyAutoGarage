@@ -1,0 +1,173 @@
+@model AutoGarageMVC.Models.ViewModels.CheckoutVM
+@{
+    ViewBag.Title = "Thanh Toán Đơn Hàng";
+    var items = (List<AutoGarageMVC.Services.CartItem>)ViewBag.Items;
+    var subtotal = (decimal)ViewBag.Subtotal;
+    var shipping = (decimal)ViewBag.Shipping;
+    var total = (decimal)ViewBag.Total;
+}
+
+@section Styles {
+  <link rel="stylesheet" href="~/css/cart.css" />
+  <link rel="stylesheet" href="~/css/checkout.css" />
+}
+
+<main class="checkout-wrapper">
+  <a href="/Cart" class="back-link">← Quay lại giỏ hàng</a>
+  <h1 class="cart-title">Thông Tin Nhận Hàng & Thanh Toán</h1>
+
+  <div class="checkout-layout">
+    <form class="checkout-form" id="checkout-form" method="post" action="/Checkout">
+      @Html.AntiForgeryToken()
+
+      <div asp-validation-summary="ModelOnly" class="text-danger" style="color:#e63946;margin-bottom:15px"></div>
+
+      <h3 class="form-section-title">Người nhận</h3>
+      <div class="form-group">
+        <label>Họ và tên người nhận *</label>
+        <input asp-for="Name" class="form-control" placeholder="Nguyễn Văn A" required />
+        <span asp-validation-for="Name" style="color:#e63946;font-size:12px"></span>
+      </div>
+
+      <div class="form-group">
+        <label>Số điện thoại *</label>
+        <input asp-for="Phone" class="form-control" placeholder="0901 234 567" required />
+        <span asp-validation-for="Phone" style="color:#e63946;font-size:12px"></span>
+      </div>
+
+      <div class="form-group">
+        <label>Email xác nhận đơn</label>
+        <input asp-for="Email" class="form-control" placeholder="email@example.com" />
+        <span asp-validation-for="Email" style="color:#e63946;font-size:12px"></span>
+      </div>
+
+      <h3 class="form-section-title">Địa chỉ giao hàng</h3>
+      <div class="form-group">
+        <label>Tỉnh / Thành phố *</label>
+        <select asp-for="Province" class="form-control" required>
+          <option value="">-- Chọn tỉnh thành --</option>
+          <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+          <option value="Hà Nội">Hà Nội</option>
+          <option value="Đà Nẵng">Đà Nẵng</option>
+          <option value="Cần Thơ">Cần Thơ</option>
+          <option value="Hải Phòng">Hải Phòng</option>
+          <option value="Bình Dương">Bình Dương</option>
+          <option value="Đồng Nai">Đồng Nai</option>
+        </select>
+        <span asp-validation-for="Province" style="color:#e63946;font-size:12px"></span>
+      </div>
+
+      <div class="form-group">
+        <label>Quận / Huyện *</label>
+        <input asp-for="District" class="form-control" placeholder="Ví dụ: Quận 1, Cầu Giấy..." required />
+        <span asp-validation-for="District" style="color:#e63946;font-size:12px"></span>
+      </div>
+
+      <div class="form-group">
+        <label>Địa chỉ chi tiết (số nhà, đường) *</label>
+        <input asp-for="Address" class="form-control" placeholder="Số nhà, tên đường..." required />
+        <span asp-validation-for="Address" style="color:#e63946;font-size:12px"></span>
+      </div>
+
+      <div class="form-group">
+        <label>Ghi chú đơn hàng</label>
+        <textarea asp-for="Note" class="form-control" rows="3" placeholder="Ví dụ: Giao giờ hành chính, gọi trước khi giao..."></textarea>
+      </div>
+
+      <h3 class="form-section-title">Phương thức thanh toán</h3>
+      <div class="payment-options">
+        <label class="payment-option">
+          <input type="radio" asp-for="Payment" value="cod" checked />
+          <span>Thanh toán khi nhận hàng (COD)</span>
+        </label>
+        <label class="payment-option">
+          <input type="radio" asp-for="Payment" value="bank" />
+          <span>Chuyển khoản ngân hàng (Qua mã QR)</span>
+        </label>
+      </div>
+    </form>
+
+    <aside class="checkout-summary">
+      <h3>Đơn Hàng Của Bạn</h3>
+      <div class="checkout-items">
+        @foreach (var item in items)
+        {
+          <div class="summary-item" style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:14px;">
+            <span>@item.Qty × @item.Name</span>
+            <strong>@((item.Price * item.Qty).ToString("N0")) ₫</strong>
+          </div>
+        }
+      </div>
+
+      <div class="coupon-box" style="margin-top:20px;padding:15px;background:#f8f9fa;border-radius:8px">
+        <label style="font-weight:600;font-size:13px">Mã giảm giá (SALE30, WELCOME10, SHIPFREE)</label>
+        <div class="coupon-input-row" style="display:flex;gap:8px;margin-top:8px">
+          <input type="text" id="coupon-field" form="checkout-form" name="Coupon" placeholder="Nhập mã..." style="flex:1;padding:8px 12px;border:1px solid #ddd;border-radius:6px" />
+          <button type="button" id="btn-apply-coupon" class="btn-primary" style="padding:8px 16px">Áp dụng</button>
+        </div>
+        <p id="coupon-msg" style="font-size:13px;margin-top:8px;"></p>
+      </div>
+
+      <div style="margin-top:20px">
+        <div class="summary-row"><span>Tạm tính:</span><span id="co-subtotal">@subtotal.ToString("N0") ₫</span></div>
+        <div class="summary-row"><span>Phí ship:</span><span id="co-shipping">@shipping.ToString("N0") ₫</span></div>
+        <div class="summary-row" id="discount-row" style="display:none;color:#1b7f3a">
+          <span>Giảm giá:</span><span id="co-discount">-0 ₫</span>
+        </div>
+        <div class="summary-row total"><span>Tổng cộng:</span><span id="co-total">@total.ToString("N0") ₫</span></div>
+      </div>
+
+      <button class="btn-checkout" form="checkout-form" type="submit" style="margin-top:20px;width:100%">
+        Xác Nhận Đặt Hàng
+      </button>
+    </aside>
+  </div>
+</main>
+
+@section Scripts {
+  <partial name="_ValidationScriptsPartial" />
+  <script>
+    const subtotal = @subtotal;
+    let shipping = @shipping;
+
+    document.getElementById('btn-apply-coupon')?.addEventListener('click', () => {
+      const code = document.getElementById('coupon-field').value.trim().toUpperCase();
+      const msg = document.getElementById('coupon-msg');
+      const discountRow = document.getElementById('discount-row');
+      const discountEl = document.getElementById('co-discount');
+      const shippingEl = document.getElementById('co-shipping');
+      const totalEl = document.getElementById('co-total');
+
+      let discount = 0;
+      let currShipping = shipping;
+
+      if (code === 'SALE30') {
+        discount = Math.min(subtotal * 0.3, 500000);
+        msg.style.color = '#1b7f3a';
+        msg.textContent = 'Đã áp dụng mã SALE30: Giảm 30% (tối đa 500k)';
+      } else if (code === 'WELCOME10') {
+        discount = Math.min(subtotal * 0.1, 200000);
+        msg.style.color = '#1b7f3a';
+        msg.textContent = 'Đã áp dụng mã WELCOME10: Giảm 10% (tối đa 200k)';
+      } else if (code === 'SHIPFREE') {
+        currShipping = 0;
+        msg.style.color = '#1b7f3a';
+        msg.textContent = 'Đã áp dụng mã SHIPFREE: Miễn phí vận chuyển';
+      } else if (code) {
+        msg.style.color = '#e63946';
+        msg.textContent = 'Mã giảm giá không hợp lệ';
+      }
+
+      if (discount > 0) {
+        discountRow.style.display = 'flex';
+        discountEl.textContent = '-' + discount.toLocaleString('vi-VN') + ' ₫';
+      } else {
+        discountRow.style.display = 'none';
+      }
+
+      shippingEl.textContent = currShipping.toLocaleString('vi-VN') + ' ₫';
+      const finalTotal = Math.max(0, subtotal + currShipping - discount);
+      totalEl.textContent = finalTotal.toLocaleString('vi-VN') + ' ₫';
+    });
+  </script>
+}

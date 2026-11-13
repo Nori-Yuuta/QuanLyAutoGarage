@@ -1,0 +1,46 @@
+@model List<AutoGarageMVC.Models.Entities.Car>
+@{
+    ViewBag.Title = "Xe theo hãng";
+}
+<section class="page-hero" style="padding:60px 40px 40px">
+  <div class="page-hero-content">
+    <span class="page-hero-badge">HÃNG XE</span>
+    <h1>Xe Đang Bán</h1>
+    <p>Chọn hãng xe để xem các mẫu xe chính hãng.</p>
+  </div>
+</section>
+
+<section class="page-section" style="padding-bottom:20px">
+  <div class="filter-tabs">
+    <a href="/Cars" class="filter-tab @(ViewBag.Brand == null ? "active" : "")">Tất cả</a>
+    @foreach (var b in (string[])ViewBag.AllBrands)
+    {
+      <a href="/Cars?brand=@b" class="filter-tab @(ViewBag.Brand == b ? "active" : "")">@b</a>
+    }
+  </div>
+</section>
+
+<section class="page-section" style="padding-top:0">
+  <div class="grid">
+    @foreach (var car in Model)
+    {
+      <a class="card" href="/Product/Detail?type=car&id=@car.Id">
+        <div class="card-img" style="background:#fff;display:flex;align-items:center;justify-content:center;">
+          @if (car.ImageUrl != null && car.ImageUrl.StartsWith("/uploads"))
+          {
+            <img src="@car.ImageUrl" style="width:100%;height:100%;object-fit:cover;" />
+          }
+          else
+          {
+            <span style="font-size:60px">@car.ImageUrl</span>
+          }
+        </div>
+        <div class="card-body">
+          <div class="card-brand">@car.Brand</div>
+          <div class="card-title">@car.Name</div>
+          <div class="card-price">@car.Price</div>
+        </div>
+      </a>
+    }
+  </div>
+</section>

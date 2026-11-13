@@ -1,0 +1,54 @@
+@model List<AutoGarageMVC.Models.Entities.Accessory>
+@{
+    ViewBag.Title = "Phụ kiện ô tô";
+}
+
+<section class="page-hero" style="padding:60px 40px 40px">
+  <div class="page-hero-content">
+    <span class="page-hero-badge">PHỤ KIỆN CHÍNH HÃNG</span>
+    <h1>Trang Bị Cho Xế Yêu</h1>
+    <p>Nâng cấp tiện nghi, thẩm mỹ và an toàn với các dòng phụ kiện chất lượng cao.</p>
+  </div>
+</section>
+
+<section class="page-section" style="padding-bottom:20px">
+  <div class="filter-tabs">
+    <a href="/Accessories" class="filter-tab @(ViewBag.Category == null ? "active" : "")">Tất cả</a>
+    @foreach (var cat in (string[])ViewBag.AllCategories)
+    {
+      <a href="/Accessories?category=@cat" class="filter-tab @(ViewBag.Category == cat ? "active" : "")">@cat</a>
+    }
+  </div>
+</section>
+
+<section class="page-section" style="padding-top:0">
+  @if (!Model.Any())
+  {
+    <p style="color:#888;padding:40px;text-align:center;">Không có phụ kiện nào trong danh mục này.</p>
+  }
+  else
+  {
+    <div class="grid">
+      @foreach (var acc in Model)
+      {
+        <a class="card" href="/Product/Detail?type=acc&id=@acc.Id">
+          <div class="card-img" style="background:#fff;display:flex;align-items:center;justify-content:center;">
+            @if (acc.ImageUrl != null && acc.ImageUrl.StartsWith("/uploads"))
+            {
+              <img src="@acc.ImageUrl" style="width:100%;height:100%;object-fit:cover;" />
+            }
+            else
+            {
+              <span style="font-size:60px">@acc.ImageUrl</span>
+            }
+          </div>
+          <div class="card-body">
+            <div class="card-brand">@acc.Category</div>
+            <div class="card-title">@acc.Name</div>
+            <div class="card-price">@acc.Price</div>
+          </div>
+        </a>
+      }
+    </div>
+  }
+</section>

@@ -1,0 +1,96 @@
+@model List<AutoGarageMVC.Models.Entities.Notification>
+@{
+    Layout = "_AdminLayout";
+    ViewBag.Title = "Quản Lý Thông Báo";
+    ViewBag.Heading = "Quản Lý Thông Báo Hệ Thống";
+}
+
+<div class="tab-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+  <h2>Danh Sách Thông Báo (@Model.Count)</h2>
+  <button class="admin-btn primary" onclick="openNotifModal()">+ Thêm Thông Báo</button>
+</div>
+
+<div class="admin-card">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Tiêu Đề</th>
+        <th>Nội Dung</th>
+        <th>Ngày Tạo</th>
+        <th>Hành Động</th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach (var n in Model)
+      {
+        <tr>
+          <td>#@n.Id</td>
+          <td><strong>@n.Title</strong></td>
+          <td style="max-width:400px">@n.Content</td>
+          <td>@n.Date.ToString("dd/MM/yyyy HH:mm")</td>
+          <td style="white-space:nowrap">
+            <button class="admin-btn warning" style="padding:6px 12px;font-size:12px;" onclick='editNotif(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(n)))'>Sửa</button>
+            <form method="post" action="/Admin/DeleteNotification" style="display:inline" onsubmit="return confirm('Bạn có chắc muốn xóa thông báo này?')">
+              @Html.AntiForgeryToken()
+              <input type="hidden" name="id" value="@n.Id" />
+              <button type="submit" class="admin-btn danger" style="padding:6px 12px;font-size:12px;">Xóa</button>
+            </form>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<!-- MODAL THÊM / SỬA THÔNG BÁO -->
+<div id="notif-modal" class="admin-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+  <div class="admin-modal-content" style="background:#fff;padding:30px;border-radius:10px;max-width:550px;width:90%;position:relative;">
+    <button class="admin-modal-close" onclick="closeNotifModal()" style="position:absolute;top:15px;right:20px;background:none;border:none;font-size:24px;cursor:pointer;">&times;</button>
+    <h2 id="modal-notif-title" style="margin-top:0">Thêm Thông Báo</h2>
+
+    <form method="post" action="/Admin/SaveNotification">
+      @Html.AntiForgeryToken()
+      <input type="hidden" id="notif-id" name="Id" value="0" />
+
+      <div class="form-group" style="margin-bottom:15px">
+        <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Tiêu đề thông báo *</label>
+        <input type="text" id="notif-title" name="Title" required style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px" />
+      </div>
+
+      <div class="form-group" style="margin-bottom:20px">
+        <label style="display:block;font-size:13px;font-weight:600;margin-bottom:4px">Nội dung chi tiết *</label>
+        <textarea id="notif-content" name="Content" rows="4" required style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px"></textarea>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px">
+        <button type="button" class="admin-btn outline" onclick="closeNotifModal()">Hủy</button>
+        <button type="submit" class="admin-btn primary">Lưu Thông Báo</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+@section Scripts {
+  <script>
+    function openNotifModal() {
+      document.getElementById('modal-notif-title').textContent = 'Thêm Thông Báo';
+      document.getElementById('notif-id').value = '0';
+      document.getElementById('notif-title').value = '';
+      document.getElementById('notif-content').value = '';
+      document.getElementById('notif-modal').style.display = 'flex';
+    }
+
+    function editNotif(n) {
+      document.getElementById('modal-notif-title').textContent = 'Chỉnh Sửa Thông Báo';
+      document.getElementById('notif-id').value = n.Id;
+      document.getElementById('notif-title').value = n.Title || '';
+      document.getElementById('notif-content').value = n.Content || '';
+      document.getElementById('notif-modal').style.display = 'flex';
+    }
+
+    function closeNotifModal() {
+      document.getElementById('notif-modal').style.display = 'none';
+    }
+  </script>
+}

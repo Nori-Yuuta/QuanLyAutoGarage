@@ -1,0 +1,10 @@
+@if (TempData["ToastType"] != null)
+{
+  <script>
+    window.__toast = {
+      type:   '@TempData["ToastType"]',
+      title:  '@Html.Raw(TempData["ToastTitle"])',
+      msg:    '@Html.Raw(TempData["ToastMsg"])'
+    };
+  </script>
+}
