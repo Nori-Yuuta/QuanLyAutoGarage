@@ -11,4 +11,7 @@ public class Accessory
     public string? Material { get; set; }
     public string? Warranty { get; set; }
     public string? Compat { get; set; }          // lưu dạng "Toyota Camry,Honda CR-V,..."
+
+    // Navigation property
+    public List<OrderItem> OrderItems { get; set; } = new();
 }

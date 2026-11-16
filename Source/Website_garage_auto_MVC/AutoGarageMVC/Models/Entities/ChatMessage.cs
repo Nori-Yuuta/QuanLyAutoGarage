@@ -3,6 +3,8 @@ namespace AutoGarageMVC.Models.Entities;
 public class ChatMessage
 {
     public int Id { get; set; }
+    public int? UserId { get; set; }
+    public User? User { get; set; }
     public string From { get; set; } = "";       // "customer" | "admin"
     public string Sender { get; set; } = "";
     public string? SenderEmail { get; set; }

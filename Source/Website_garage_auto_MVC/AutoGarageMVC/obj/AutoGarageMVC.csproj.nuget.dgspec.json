@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\sukap\\OneDrive\\Documents\\Website_garage_auto\\AutoGarageMVC\\AutoGarageMVC.csproj": {}
+    "C:\\Users\\sukap\\OneDrive\\Documents\\Website_garage_auto_MVC\\AutoGarageMVC\\AutoGarageMVC.csproj": {}
   },
   "projects": {
-    "C:\\Users\\sukap\\OneDrive\\Documents\\Website_garage_auto\\AutoGarageMVC\\AutoGarageMVC.csproj": {
+    "C:\\Users\\sukap\\OneDrive\\Documents\\Website_garage_auto_MVC\\AutoGarageMVC\\AutoGarageMVC.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\sukap\\OneDrive\\Documents\\Website_garage_auto\\AutoGarageMVC\\AutoGarageMVC.csproj",
+        "projectUniqueName": "C:\\Users\\sukap\\OneDrive\\Documents\\Website_garage_auto_MVC\\AutoGarageMVC\\AutoGarageMVC.csproj",
         "projectName": "AutoGarageMVC",
-        "projectPath": "C:\\Users\\sukap\\OneDrive\\Documents\\Website_garage_auto\\AutoGarageMVC\\AutoGarageMVC.csproj",
+        "projectPath": "C:\\Users\\sukap\\OneDrive\\Documents\\Website_garage_auto_MVC\\AutoGarageMVC\\AutoGarageMVC.csproj",
         "packagesPath": "C:\\Users\\sukap\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\sukap\\OneDrive\\Documents\\Website_garage_auto\\AutoGarageMVC\\obj\\",
+        "outputPath": "C:\\Users\\sukap\\OneDrive\\Documents\\Website_garage_auto_MVC\\AutoGarageMVC\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

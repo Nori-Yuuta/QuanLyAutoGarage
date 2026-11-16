@@ -42,10 +42,12 @@ public class ChatController : Controller
 
         var isUserAdmin = User.IsInRole("admin");
         var userEmail = User.Identity?.Name;
-        var displayName = User.FindFirst("DisplayName")?.Value ?? (isUserAdmin ? "AutoGarage Admin" : "Khách Hàng");
+        var user = !string.IsNullOrEmpty(userEmail) ? _db.Users.FirstOrDefault(u => u.Email == userEmail) : null;
+        var displayName = User.FindFirst("DisplayName")?.Value ?? (isUserAdmin ? "AutoGarage Admin" : (user?.Name ?? "Khách Hàng"));
 
         var msg = new ChatMessage
         {
+            UserId = user?.Id,
             From = isUserAdmin ? "admin" : "customer",
             Sender = displayName,
             SenderEmail = userEmail,

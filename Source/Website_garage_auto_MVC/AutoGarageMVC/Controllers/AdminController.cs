@@ -318,11 +318,15 @@ public class AdminController : Controller
     {
         if (!string.IsNullOrWhiteSpace(text))
         {
+            var adminEmail = User.Identity?.Name;
+            var adminUser = _db.Users.FirstOrDefault(u => u.Email == adminEmail);
+
             _db.ChatMessages.Add(new ChatMessage
             {
+                UserId = adminUser?.Id,
                 From = "admin",
                 Sender = "AutoGarage Admin",
-                SenderEmail = User.Identity?.Name ?? "admin@autogarage.vn",
+                SenderEmail = adminEmail ?? "admin@autogarage.vn",
                 Text = text.Trim(),
                 Time = DateTime.UtcNow
             });
@@ -368,5 +372,77 @@ public class AdminController : Controller
         TempData["ToastTitle"] = "Thành công!";
         TempData["ToastMsg"] = "Thông tin tài khoản Admin đã được cập nhật.";
         return RedirectToAction("Account");
+    }
+
+    // 8. NEWS MANAGEMENT
+    public IActionResult News()
+    {
+        var newsList = _db.News
+            .Include(n => n.Author)
+            .OrderByDescending(n => n.CreatedAt)
+            .ToList();
+        return View(newsList);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SaveNews(News model, IFormFile? imageFile)
+    {
+        if (string.IsNullOrWhiteSpace(model.Title))
+        {
+            TempData["ToastType"] = "error";
+            TempData["ToastTitle"] = "Thiếu thông tin";
+            TempData["ToastMsg"] = "Tiêu đề bản tin không được để trống.";
+            return RedirectToAction("News");
+        }
+
+        var path = await _img.SaveAsync(imageFile);
+        if (path != null) model.ImageUrl = path;
+
+        var adminEmail = User.Identity?.Name;
+        var adminUser = _db.Users.FirstOrDefault(u => u.Email == adminEmail);
+
+        if (model.Id == 0)
+        {
+            model.AuthorId = adminUser?.Id;
+            model.CreatedAt = DateTime.UtcNow;
+            model.Views = 0;
+            if (string.IsNullOrWhiteSpace(model.Category)) model.Category = "Tin tức";
+            _db.News.Add(model);
+            TempData["ToastMsg"] = "Thêm bản tin mới thành công!";
+        }
+        else
+        {
+            var existing = _db.News.Find(model.Id);
+            if (existing != null)
+            {
+                existing.Title = model.Title;
+                existing.Category = string.IsNullOrWhiteSpace(model.Category) ? "Tin tức" : model.Category;
+                existing.Summary = model.Summary;
+                existing.Content = model.Content;
+                if (!string.IsNullOrEmpty(model.ImageUrl)) existing.ImageUrl = model.ImageUrl;
+                existing.UpdatedAt = DateTime.UtcNow;
+            }
+            TempData["ToastMsg"] = "Cập nhật bản tin thành công!";
+        }
+
+        _db.SaveChanges();
+        TempData["ToastType"] = "success";
+        TempData["ToastTitle"] = "Thành công!";
+        return RedirectToAction("News");
+    }
+
+    [HttpPost]
+    public IActionResult DeleteNews(int id)
+    {
+        var news = _db.News.Find(id);
+        if (news != null)
+        {
+            _db.News.Remove(news);
+            _db.SaveChanges();
+            TempData["ToastType"] = "success";
+            TempData["ToastTitle"] = "Đã xóa!";
+            TempData["ToastMsg"] = "Đã xóa bản tin thành công.";
+        }
+        return RedirectToAction("News");
     }
 }

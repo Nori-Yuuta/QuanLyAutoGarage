@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "yPcq3I8Q8e8=",
+  "dgSpecHash": "KaM2+29+8dM=",
   "success": true,
-  "projectFilePath": "C:\\Users\\sukap\\OneDrive\\Documents\\Website_garage_auto\\AutoGarageMVC\\AutoGarageMVC.csproj",
+  "projectFilePath": "C:\\Users\\sukap\\OneDrive\\Documents\\Website_garage_auto_MVC\\AutoGarageMVC\\AutoGarageMVC.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\sukap\\.nuget\\packages\\azure.core\\1.47.1\\azure.core.1.47.1.nupkg.sha512",
     "C:\\Users\\sukap\\.nuget\\packages\\azure.identity\\1.14.2\\azure.identity.1.14.2.nupkg.sha512",
@@ -65,9 +65,9 @@
       "code": "NU1902",
       "level": "Warning",
       "message": "Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7",
-      "projectPath": "C:\\Users\\sukap\\OneDrive\\Documents\\Website_garage_auto\\AutoGarageMVC\\AutoGarageMVC.csproj",
+      "projectPath": "C:\\Users\\sukap\\OneDrive\\Documents\\Website_garage_auto_MVC\\AutoGarageMVC\\AutoGarageMVC.csproj",
       "warningLevel": 1,
-      "filePath": "C:\\Users\\sukap\\OneDrive\\Documents\\Website_garage_auto\\AutoGarageMVC\\AutoGarageMVC.csproj",
+      "filePath": "C:\\Users\\sukap\\OneDrive\\Documents\\Website_garage_auto_MVC\\AutoGarageMVC\\AutoGarageMVC.csproj",
       "libraryId": "System.Security.Cryptography.Pkcs",
       "targetGraphs": [
         "net10.0"
@@ -77,9 +77,9 @@
       "code": "NU1903",
       "level": "Warning",
       "message": "Package 'System.Security.Cryptography.Pkcs' 9.0.4 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx",
-      "projectPath": "C:\\Users\\sukap\\OneDrive\\Documents\\Website_garage_auto\\AutoGarageMVC\\AutoGarageMVC.csproj",
+      "projectPath": "C:\\Users\\sukap\\OneDrive\\Documents\\Website_garage_auto_MVC\\AutoGarageMVC\\AutoGarageMVC.csproj",
       "warningLevel": 1,
-      "filePath": "C:\\Users\\sukap\\OneDrive\\Documents\\Website_garage_auto\\AutoGarageMVC\\AutoGarageMVC.csproj",
+      "filePath": "C:\\Users\\sukap\\OneDrive\\Documents\\Website_garage_auto_MVC\\AutoGarageMVC\\AutoGarageMVC.csproj",
       "libraryId": "System.Security.Cryptography.Pkcs",
       "targetGraphs": [
         "net10.0"

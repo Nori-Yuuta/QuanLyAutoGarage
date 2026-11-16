@@ -74,10 +74,14 @@ public class CheckoutController : Controller
             shipping = 0;
         }
 
+        var email = User.Identity?.Name;
+        var currentUser = !string.IsNullOrEmpty(email) ? _db.Users.FirstOrDefault(u => u.Email == email) : null;
+
         var order = new Order
         {
             OrderCode = "ORD" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-            UserEmail = User.Identity?.Name ?? vm.Email ?? "guest@autogarage.vn",
+            UserId = currentUser?.Id,
+            UserEmail = email ?? vm.Email ?? "guest@autogarage.vn",
             RecipientName = vm.Name,
             RecipientPhone = vm.Phone,
             RecipientEmail = vm.Email,

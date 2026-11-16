@@ -28,7 +28,7 @@ public class ProfileController : Controller
 
         var orders = _db.Orders
             .Include(o => o.Items)
-            .Where(o => o.UserEmail == email)
+            .Where(o => o.UserId == user.Id || o.UserEmail == email)
             .OrderByDescending(o => o.CreatedAt)
             .ToList();
 

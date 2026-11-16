@@ -137,7 +137,12 @@ namespace AutoGarageMVC.Migrations
                     b.Property<DateTime>("Time")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("ChatMessages");
                 });
@@ -170,6 +175,52 @@ namespace AutoGarageMVC.Migrations
                     b.ToTable("Events");
                 });
 
+            modelBuilder.Entity("AutoGarageMVC.Models.Entities.News", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AuthorId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Views")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.ToTable("News");
+                });
+
             modelBuilder.Entity("AutoGarageMVC.Models.Entities.Notification", b =>
                 {
                     b.Property<int>("Id")
@@ -189,7 +240,12 @@ namespace AutoGarageMVC.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Notifications");
                 });
@@ -258,10 +314,15 @@ namespace AutoGarageMVC.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("OrderCode")
                         .IsUnique();
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Orders");
                 });
@@ -274,7 +335,7 @@ namespace AutoGarageMVC.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AccessoryId")
+                    b.Property<int?>("AccessoryId")
                         .HasColumnType("int");
 
                     b.Property<string>("Category")
@@ -297,6 +358,8 @@ namespace AutoGarageMVC.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AccessoryId");
 
                     b.HasIndex("OrderId");
 
@@ -342,20 +405,83 @@ namespace AutoGarageMVC.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("AutoGarageMVC.Models.Entities.ChatMessage", b =>
+                {
+                    b.HasOne("AutoGarageMVC.Models.Entities.User", "User")
+                        .WithMany("ChatMessages")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("AutoGarageMVC.Models.Entities.News", b =>
+                {
+                    b.HasOne("AutoGarageMVC.Models.Entities.User", "Author")
+                        .WithMany("NewsArticles")
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Author");
+                });
+
+            modelBuilder.Entity("AutoGarageMVC.Models.Entities.Notification", b =>
+                {
+                    b.HasOne("AutoGarageMVC.Models.Entities.User", "User")
+                        .WithMany("Notifications")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("AutoGarageMVC.Models.Entities.Order", b =>
+                {
+                    b.HasOne("AutoGarageMVC.Models.Entities.User", "User")
+                        .WithMany("Orders")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("AutoGarageMVC.Models.Entities.OrderItem", b =>
                 {
+                    b.HasOne("AutoGarageMVC.Models.Entities.Accessory", "Accessory")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("AccessoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("AutoGarageMVC.Models.Entities.Order", "Order")
                         .WithMany("Items")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Accessory");
+
                     b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("AutoGarageMVC.Models.Entities.Accessory", b =>
+                {
+                    b.Navigation("OrderItems");
                 });
 
             modelBuilder.Entity("AutoGarageMVC.Models.Entities.Order", b =>
                 {
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("AutoGarageMVC.Models.Entities.User", b =>
+                {
+                    b.Navigation("ChatMessages");
+
+                    b.Navigation("NewsArticles");
+
+                    b.Navigation("Notifications");
+
+                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

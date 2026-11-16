@@ -1,0 +1,358 @@
+@{
+    var currentUser = User.Identity?.IsAuthenticated == true
+        ? (User.FindFirst("DisplayName")?.Value ?? User.Identity.Name)
+        : null;
+}
+
+<!-- FLOATING WIDGETS CONTAINER -->
+<div class="floating-contact-container" id="floating-contact-container">
+  <!-- 1. HOTLINE CIRCLE -->
+  <a href="tel:0901234567" class="floating-btn floating-hotline" title="Gọi Hotline: 0901 234 567 (24/7)">
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+    </svg>
+    <span class="floating-tooltip">Hotline: 0901 234 567</span>
+  </a>
+
+  <!-- 2. CHAT BUBBLE CIRCLE -->
+  <button type="button" class="floating-btn floating-chat" id="chat-bubble-toggle" onclick="toggleCustomerChat()" title="Chat trực tuyến với tư vấn viên">
+    <svg id="chat-icon-open" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </svg>
+    <svg id="chat-icon-close" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+    <span class="chat-badge" id="chat-unread-dot"></span>
+    <span class="floating-tooltip">Hỗ trợ trực tuyến</span>
+  </button>
+</div>
+
+<!-- CHATBOX POPUP -->
+<div class="customer-chatbox" id="customer-chatbox" style="display:none">
+  <!-- CHAT HEADER -->
+  <div class="customer-chat-header">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="chat-status-avatar">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+      </div>
+      <div>
+        <h4 style="margin:0;font-size:14px;color:#fff;font-weight:700">Tư Vấn AutoGarage</h4>
+        <small style="color:#2ecc71;display:flex;align-items:center;gap:4px;font-size:11px">
+          <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#2ecc71"></span>
+          Đang trực tuyến
+        </small>
+      </div>
+    </div>
+    <button type="button" class="chat-close-btn" onclick="toggleCustomerChat()">&times;</button>
+  </div>
+
+  <!-- CHAT MESSAGES BODY -->
+  <div class="customer-chat-messages" id="customer-chat-messages">
+    <div class="chat-greeting" style="background:#f4f4f6;padding:12px;border-radius:10px;font-size:12px;color:#555;line-height:1.5;margin-bottom:12px;border:1px solid #eee">
+      👋 Xin chào <strong>@(currentUser ?? "quý khách")</strong>! AutoGarage sẵn sàng hỗ trợ tư vấn các dòng xe, linh kiện phụ kiện và báo giá nhanh chóng nhất.
+    </div>
+    <div id="messages-list" style="display:flex;flex-direction:column;gap:10px">
+      <!-- Dynamic messages injected here -->
+    </div>
+  </div>
+
+  <!-- CHAT INPUT -->
+  <form class="customer-chat-input-area" id="customer-chat-form" onsubmit="sendCustomerMessage(event)">
+    <input type="text" id="chat-input-text" placeholder="Nhập câu hỏi của bạn..." autocomplete="off" required />
+    <button type="submit" id="chat-send-btn" title="Gửi tin nhắn">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"></line>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+      </svg>
+    </button>
+  </form>
+</div>
+
+<style>
+  .floating-contact-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    z-index: 9990;
+    align-items: flex-end;
+  }
+  .floating-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: transform 0.25s, box-shadow 0.25s;
+    border: none;
+    position: relative;
+    text-decoration: none;
+  }
+  .floating-btn:hover {
+    transform: scale(1.08);
+  }
+  .floating-hotline {
+    background: #e63946;
+    color: #ffffff;
+    box-shadow: 0 6px 20px rgba(230, 57, 70, 0.4);
+    animation: pulseHotline 2s infinite;
+  }
+  .floating-chat {
+    background: #1a1a1a;
+    color: #ffcc00;
+  }
+  .chat-badge {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 12px;
+    height: 12px;
+    background: #2ecc71;
+    border: 2px solid #fff;
+    border-radius: 50%;
+  }
+  .floating-tooltip {
+    position: absolute;
+    right: 64px;
+    background: #1a1a1a;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    transform: translateX(10px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .floating-btn:hover .floating-tooltip {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  @@keyframes pulseHotline {
+    0% { box-shadow: 0 0 0 0 rgba(230, 57, 70, 0.6); }
+    70% { box-shadow: 0 0 0 14px rgba(230, 57, 70, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(230, 57, 70, 0); }
+  }
+
+  /* CHATBOX POPUP STYLES */
+  .customer-chatbox {
+    position: fixed;
+    bottom: 95px;
+    right: 24px;
+    width: 360px;
+    max-width: calc(100vw - 32px);
+    height: 480px;
+    max-height: calc(100vh - 120px);
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
+    z-index: 9995;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid #eee;
+    animation: chatSlideUp 0.25s ease-out;
+  }
+  @@keyframes chatSlideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .customer-chat-header {
+    background: #1a1a1a;
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .chat-status-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #2a2a2a;
+    color: #ffcc00;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .chat-close-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+    opacity: 0.8;
+  }
+  .chat-close-btn:hover { opacity: 1; }
+  .customer-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    background: #fafafa;
+  }
+  .chat-bubble-msg {
+    max-width: 80%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.45;
+    word-break: break-word;
+  }
+  .chat-bubble-msg.admin-reply {
+    align-self: flex-start;
+    background: #ffffff;
+    color: #1a1a1a;
+    border: 1px solid #eee;
+    border-bottom-left-radius: 2px;
+  }
+  .chat-bubble-msg.customer-msg {
+    align-self: flex-end;
+    background: #1a1a1a;
+    color: #ffffff;
+    border-bottom-right-radius: 2px;
+  }
+  .chat-bubble-time {
+    font-size: 10px;
+    opacity: 0.6;
+    margin-top: 4px;
+    text-align: right;
+  }
+  .customer-chat-input-area {
+    display: flex;
+    gap: 8px;
+    padding: 12px 14px;
+    background: #ffffff;
+    border-top: 1px solid #eee;
+  }
+  .customer-chat-input-area input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 13px;
+    outline: none;
+  }
+  .customer-chat-input-area input:focus {
+    border-color: #1a1a1a;
+  }
+  .customer-chat-input-area button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    color: #ffcc00;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .customer-chat-input-area button:hover {
+    background: #333;
+  }
+</style>
+
+<script>
+  let isChatOpen = false;
+  let chatPollTimer = null;
+  let lastMessageCount = 0;
+
+  function toggleCustomerChat() {
+    const box = document.getElementById('customer-chatbox');
+    const iconOpen = document.getElementById('chat-icon-open');
+    const iconClose = document.getElementById('chat-icon-close');
+    isChatOpen = !isChatOpen;
+
+    if (isChatOpen) {
+      box.style.display = 'flex';
+      iconOpen.style.display = 'none';
+      iconClose.style.display = 'block';
+      loadChatMessages();
+      if (!chatPollTimer) {
+        chatPollTimer = setInterval(loadChatMessages, 4000);
+      }
+      setTimeout(() => {
+        document.getElementById('chat-input-text')?.focus();
+      }, 100);
+    } else {
+      box.style.display = 'none';
+      iconOpen.style.display = 'block';
+      iconClose.style.display = 'none';
+      if (chatPollTimer) {
+        clearInterval(chatPollTimer);
+        chatPollTimer = null;
+      }
+    }
+  }
+
+  async function loadChatMessages() {
+    try {
+      const res = await fetch('/Chat/GetMessages');
+      if (!res.ok) return;
+      const data = await res.json();
+      const list = document.getElementById('messages-list');
+      if (!list) return;
+
+      if (data.length !== lastMessageCount) {
+        lastMessageCount = data.length;
+        list.innerHTML = data.map(m => {
+          const isCustomer = m.from === 'customer';
+          return `
+            <div class="chat-bubble-msg ${isCustomer ? 'customer-msg' : 'admin-reply'}">
+              <div style="font-weight:700;font-size:11px;margin-bottom:3px;opacity:0.8">${escapeHtml(m.sender || (isCustomer ? 'Bạn' : 'AutoGarage'))}</div>
+              <div>${escapeHtml(m.text)}</div>
+              <div class="chat-bubble-time">${m.time ? m.time.split(' ')[0] : ''}</div>
+            </div>
+          `;
+        }).join('');
+
+        const container = document.getElementById('customer-chat-messages');
+        if (container) {
+          container.scrollTop = container.scrollHeight;
+        }
+      }
+    } catch (e) {
+      console.error('Lỗi tải tin nhắn:', e);
+    }
+  }
+
+  async function sendCustomerMessage(e) {
+    e.preventDefault();
+    const input = document.getElementById('chat-input-text');
+    const text = input?.value?.trim();
+    if (!text) return;
+
+    input.value = '';
+    try {
+      const res = await fetch('/Chat/SendMessage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+      if (res.ok) {
+        loadChatMessages();
+      }
+    } catch (err) {
+      console.error('Lỗi gửi tin nhắn:', err);
+    }
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>"']/g, function(m) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+    });
+  }
+</script>

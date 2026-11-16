@@ -4,6 +4,8 @@ public class Order
 {
     public int Id { get; set; }
     public string OrderCode { get; set; } = "";  // "ORD123..."
+    public int? UserId { get; set; }
+    public User? User { get; set; }
     public string UserEmail { get; set; } = "";
     public string RecipientName { get; set; } = "";
     public string RecipientPhone { get; set; } = "";

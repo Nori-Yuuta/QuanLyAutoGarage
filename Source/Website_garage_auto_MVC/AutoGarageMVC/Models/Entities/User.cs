@@ -9,4 +9,10 @@ public class User
     public string PasswordHash { get; set; } = "";
     public string Role { get; set; } = "customer"; // customer | admin
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    // Navigation properties
+    public List<Order> Orders { get; set; } = new();
+    public List<ChatMessage> ChatMessages { get; set; } = new();
+    public List<News> NewsArticles { get; set; } = new();
+    public List<Notification> Notifications { get; set; } = new();
 }

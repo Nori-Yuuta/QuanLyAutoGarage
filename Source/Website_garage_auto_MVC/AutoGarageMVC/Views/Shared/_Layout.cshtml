@@ -144,6 +144,11 @@
   <partial name="_Footer" />
 </div>
 
+@if (!isAdmin)
+{
+  <partial name="_CustomerFloatingWidgets" />
+}
+
 <partial name="_Toast" />
 
 <script src="~/js/toast.js"></script>
