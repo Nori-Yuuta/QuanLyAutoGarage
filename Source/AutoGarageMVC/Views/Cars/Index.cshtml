@@ -1,0 +1,320 @@
+@model List<AutoGarageMVC.Models.Entities.Car>
+@{
+    ViewBag.Title = "Danh Sách Xe Ô Tô";
+    string currentBrand = ViewBag.Brand as string ?? "";
+    string currentSearch = ViewBag.Search as string ?? "";
+    string currentPriceRange = ViewBag.PriceRange as string ?? "";
+    string currentFuel = ViewBag.Fuel as string ?? "";
+    string currentTransmission = ViewBag.Transmission as string ?? "";
+    int? currentSeats = ViewBag.Seats as int?;
+    string currentSortBy = ViewBag.SortBy as string ?? "";
+}
+
+@section Styles {
+  <link rel="stylesheet" href="~/css/page.css" />
+  <style>
+    .cars-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 20px 60px;
+    }
+    .filter-bar-card {
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+      margin-bottom: 30px;
+    }
+    .filter-grid-layout {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      align-items: end;
+    }
+    .filter-input-col {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .filter-input-col label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #333;
+    }
+    .filter-input-col select, .filter-input-col input {
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+      background: #fafafa;
+    }
+    .filter-input-col select:focus, .filter-input-col input:focus {
+      border-color: #ffcc00;
+      background: #fff;
+    }
+    .filter-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-apply-filter {
+      flex: 1;
+      padding: 10px 16px;
+      background: #ffcc00;
+      color: #1a1a1a;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-apply-filter:hover {
+      background: #ffaa00;
+      transform: translateY(-1px);
+    }
+    .btn-reset-filter {
+      padding: 10px 14px;
+      background: #f1f3f5;
+      color: #555;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 13px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-reset-filter:hover {
+      background: #e9ecef;
+      color: #1a1a1a;
+    }
+    .car-quick-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .car-tool-btn {
+      padding: 6px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .car-tool-calc {
+      background: #f1f5f9;
+      color: #0284c7;
+      border: 1px solid #e2e8f0;
+    }
+    .car-tool-calc:hover {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+    .car-tool-testdrive {
+      background: #fffbeb;
+      color: #d97706;
+      border: 1px solid #fef3c7;
+    }
+    .car-tool-testdrive:hover {
+      background: #fef3c7;
+      color: #b45309;
+    }
+    .car-specs-badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin: 8px 0;
+    }
+    .car-spec-badge {
+      font-size: 11px;
+      background: #f3f4f6;
+      padding: 3px 8px;
+      border-radius: 4px;
+      color: #555;
+    }
+  </style>
+}
+
+<section class="page-hero">
+  <div class="page-hero-content">
+    <span class="page-hero-badge">BỘ SƯU TẬP XE CHÍNH HÃNG</span>
+    <h1>Danh Sách Xe Ô Tô</h1>
+    <p>Khám phá các dòng xe mới nhất, chính hãng với giá tốt nhất thị trường cùng hỗ trợ trả góp lãi suất ưu đãi.</p>
+  </div>
+  
+  <!-- HÀNG PHÍM TẮT TIỆN ÍCH MỚI -->
+  <div style="display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap">
+    <a href="/Cars/Compare" class="btn-apply-filter" style="width:auto;padding:10px 20px;background:#1a1a1a;color:#ffcc00;border:1px solid #ffcc00">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M16 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"></path><path d="M2 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path></svg>
+      So Sánh Các Mẫu Xe
+    </a>
+    <a href="/Cars/Calculator" class="btn-apply-filter" style="width:auto;padding:10px 20px;background:#1a1a1a;color:#fff;border:1px solid #444">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
+      Tính Trả Góp & Lăn Bánh
+    </a>
+    <a href="/Cars/TestDrive" class="btn-apply-filter" style="width:auto;padding:10px 20px;background:#e63946;color:#fff">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M5 17h14M5 17l1.5-6.5A2 2 0 0 1 8.4 9h7.2a2 2 0 0 1 1.9 1.5L19 17M5 17v3M19 17v3"></path><circle cx="7.5" cy="19" r="1.5"></circle><circle cx="16.5" cy="19" r="1.5"></circle></svg>
+      Đăng Ký Lái Thử 24/7
+    </a>
+  </div>
+</section>
+
+<div class="cars-container">
+  <!-- BỘ LỌC TÌM KIẾM CHUYÊN SÂU -->
+  <div class="filter-bar-card">
+    <form method="get" action="/Cars" id="car-filter-form">
+      <div class="filter-grid-layout">
+        <!-- 1. TÌM TỪ KHÓA -->
+        <div class="filter-input-col">
+          <label>Tìm kiếm tên xe</label>
+          <input type="text" name="search" placeholder="Nhập tên xe..." value="@currentSearch" />
+        </div>
+
+        <!-- 2. HÃNG XE -->
+        <div class="filter-input-col">
+          <label>Hãng xe</label>
+          <select name="brand">
+            <option value="">-- Tất cả các hãng --</option>
+            @foreach (var b in (string[])ViewBag.AllBrands)
+            {
+              <option value="@b" selected="@(currentBrand.ToLower() == b.ToLower())">@b.ToUpper()</option>
+            }
+          </select>
+        </div>
+
+        <!-- 3. KHOẢNG GIÁ -->
+        <div class="filter-input-col">
+          <label>Khoảng giá</label>
+          <select name="priceRange">
+            <option value="">-- Tất cả mức giá --</option>
+            <option value="under-600" selected="@(currentPriceRange == "under-600")">Dưới 600 triệu</option>
+            <option value="600-1000" selected="@(currentPriceRange == "600-1000")">600 triệu - 1 tỷ</option>
+            <option value="1000-1500" selected="@(currentPriceRange == "1000-1500")">1 tỷ - 1.5 tỷ</option>
+            <option value="above-1500" selected="@(currentPriceRange == "above-1500")">Trên 1.5 tỷ</option>
+          </select>
+        </div>
+
+        <!-- 4. NHIÊN LIỆU -->
+        <div class="filter-input-col">
+          <label>Nhiên liệu</label>
+          <select name="fuel">
+            <option value="">-- Tất cả loại --</option>
+            <option value="Xăng" selected="@(currentFuel == "Xăng")">Xăng</option>
+            <option value="Dầu" selected="@(currentFuel == "Dầu")">Dầu (Diesel)</option>
+            <option value="Hybrid" selected="@(currentFuel == "Hybrid")">Hybrid</option>
+            <option value="Điện" selected="@(currentFuel == "Điện")">Xe Điện (EV)</option>
+          </select>
+        </div>
+
+        <!-- 5. HỘP SỐ -->
+        <div class="filter-input-col">
+          <label>Hộp số</label>
+          <select name="transmission">
+            <option value="">-- Tất cả --</option>
+            <option value="Tự động" selected="@(currentTransmission == "Tự động")">Số Tự Động (AT)</option>
+            <option value="CVT" selected="@(currentTransmission == "CVT")">Vô cấp (CVT)</option>
+            <option value="Sàn" selected="@(currentTransmission == "Sàn")">Số Sàn (MT)</option>
+          </select>
+        </div>
+
+        <!-- 6. SẮP XẾP -->
+        <div class="filter-input-col">
+          <label>Sắp xếp theo</label>
+          <select name="sortBy">
+            <option value="">Mặc định</option>
+            <option value="price-asc" selected="@(currentSortBy == "price-asc")">Giá: Thấp đến Cao</option>
+            <option value="price-desc" selected="@(currentSortBy == "price-desc")">Giá: Cao đến Thấp</option>
+            <option value="year-desc" selected="@(currentSortBy == "year-desc")">Năm: Mới nhất</option>
+            <option value="name-asc" selected="@(currentSortBy == "name-asc")">Tên A-Z</option>
+          </select>
+        </div>
+
+        <!-- NÚT ÁP DỤNG -->
+        <div class="filter-actions">
+          <button type="submit" class="btn-apply-filter">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            <span>Lọc Xe</span>
+          </button>
+          <a href="/Cars" class="btn-reset-filter" title="Xóa bộ lọc">↺</a>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- DANH SÁCH XE HIỂN THỊ -->
+  @if (Model != null && Model.Any())
+  {
+    <div class="grid">
+      @foreach (var car in Model)
+      {
+        <div class="card" style="display:flex;flex-direction:column;justify-content:space-between">
+          <div>
+            <a href="/Product/Detail?type=car&id=@car.Id" style="text-decoration:none;color:inherit">
+              <div class="card-img" style="background:#f8f9fa;display:flex;align-items:center;justify-content:center;overflow:hidden;height:220px;">
+                @if (!string.IsNullOrWhiteSpace(car.ImageUrl) && (car.ImageUrl.StartsWith("/") || car.ImageUrl.StartsWith("http")))
+                {
+                  <img src="@car.ImageUrl" alt="@car.Name" style="width:100%;height:100%;object-fit:cover;transition:transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" />
+                }
+                else
+                {
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:8px;color:#888;">
+                    <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M5 17h14M5 17l1.5-6.5A2 2 0 0 1 8.4 9h7.2a2 2 0 0 1 1.9 1.5L19 17M5 17v3M19 17v3"></path>
+                      <circle cx="7.5" cy="19" r="1.5"></circle>
+                      <circle cx="16.5" cy="19" r="1.5"></circle>
+                    </svg>
+                    <span style="font-size:12px">Chưa có ảnh</span>
+                  </div>
+                }
+              </div>
+              <div class="card-body">
+                <div class="card-brand">@car.Brand • @car.Year</div>
+                <div class="card-title">@car.Name</div>
+                <div class="card-price">@car.Price</div>
+                <div class="car-specs-badges">
+                  <span class="car-spec-badge">@(string.IsNullOrWhiteSpace(car.Fuel) ? "Xăng" : car.Fuel)</span>
+                  <span class="car-spec-badge">@(string.IsNullOrWhiteSpace(car.Transmission) ? "Tự động" : car.Transmission)</span>
+                  <span class="car-spec-badge">@(car.Seats.HasValue ? $"{car.Seats} chỗ" : "5 chỗ")</span>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <div style="padding:0 16px 16px">
+            <div class="car-quick-actions">
+              <a href="/Cars/Calculator?carId=@car.Id" class="car-tool-btn car-tool-calc">
+                Trả góp & Lăn bánh
+              </a>
+              <a href="/Cars/TestDrive?carId=@car.Id" class="car-tool-btn car-tool-testdrive">
+                Đặt Lái Thử
+              </a>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+  else
+  {
+    <div style="background:#fff;padding:60px 20px;text-align:center;border-radius:12px;box-shadow:0 4px 18px rgba(0,0,0,0.05)">
+      <svg viewBox="0 0 24 24" width="60" height="60" fill="none" stroke="#ccc" stroke-width="1.5" style="margin-bottom:15px">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="8" y1="12" x2="16" y2="12"></line>
+      </svg>
+      <h3 style="margin:0 0 8px 0;color:#333">Không tìm thấy mẫu xe phù hợp</h3>
+      <p style="margin:0 0 20px 0;color:#777;font-size:14px">Vui lòng thử điều chỉnh lại bộ lọc giá, nhiên liệu hoặc tìm từ khóa khác.</p>
+      <a href="/Cars" class="btn-apply-filter" style="display:inline-flex;width:auto;padding:10px 24px">Xem Tất Cả Các Mẫu Xe</a>
+    </div>
+  }
+</div>
+

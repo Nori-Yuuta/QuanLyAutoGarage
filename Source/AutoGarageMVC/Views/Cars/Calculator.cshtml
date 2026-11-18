@@ -1,0 +1,438 @@
+@{
+    ViewBag.Title = "Dự Toán Trả Góp & Chi Phí Lăn Bánh Xe";
+    var allCars = (List<AutoGarageMVC.Models.Entities.Car>)ViewBag.AllCars;
+    int selectedCarId = ViewBag.SelectedCarId;
+}
+
+@section Styles {
+  <link rel="stylesheet" href="~/css/page.css" />
+  <style>
+    .calc-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px 60px;
+    }
+    .calc-hero-card {
+      background: #1a1a1a;
+      color: #fff;
+      padding: 30px;
+      border-radius: 14px;
+      margin-bottom: 30px;
+      border-left: 6px solid #ffcc00;
+    }
+    .calc-tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .calc-tab-btn {
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      border: 1px solid #ddd;
+      background: #fff;
+      color: #555;
+      transition: all 0.2s;
+    }
+    .calc-tab-btn.active {
+      background: #ffcc00;
+      color: #1a1a1a;
+      border-color: #ffcc00;
+      box-shadow: 0 4px 12px rgba(255, 204, 0, 0.3);
+    }
+    .calc-panel {
+      display: none;
+    }
+    .calc-panel.active {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 30px;
+    }
+    .calc-card {
+      background: #fff;
+      padding: 30px;
+      border-radius: 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+    .calc-group {
+      margin-bottom: 22px;
+    }
+    .calc-group label {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    .calc-group label span.value-badge {
+      color: #e63946;
+      font-size: 15px;
+    }
+    .calc-group input[type="range"] {
+      width: 100%;
+      height: 8px;
+      border-radius: 5px;
+      background: #e5e7eb;
+      outline: none;
+      accent-color: #ffcc00;
+      cursor: pointer;
+    }
+    .calc-group select, .calc-group input[type="text"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      font-family: inherit;
+    }
+    .calc-group select:focus, .calc-group input:focus {
+      border-color: #ffcc00;
+    }
+    .calc-summary-card {
+      background: #1a1a1a;
+      color: #fff;
+      padding: 30px;
+      border-radius: 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #333;
+      font-size: 14px;
+    }
+    .summary-row:last-child {
+      border-bottom: none;
+    }
+    .summary-total {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 2px dashed #ffcc00;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .summary-total-value {
+      font-size: 26px;
+      font-weight: 800;
+      color: #ffcc00;
+    }
+    .calc-cta-btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+      box-sizing: border-box;
+      padding: 14px;
+      background: #ffcc00;
+      color: #1a1a1a;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 15px;
+      text-decoration: none;
+      margin-top: 20px;
+      transition: all 0.2s;
+    }
+    .calc-cta-btn:hover {
+      background: #ffaa00;
+      transform: translateY(-2px);
+    }
+    @@media (max-width: 900px) {
+      .calc-panel.active { grid-template-columns: 1fr; }
+    }
+  </style>
+}
+
+<div class="calc-container">
+  <div class="calc-hero-card">
+    <span style="background:#ffcc00;color:#1a1a1a;padding:4px 10px;border-radius:4px;font-size:12px;font-weight:800;letter-spacing:1px">TÀI CHÍNH & DỰ TOÁN</span>
+    <h1 style="margin:12px 0 6px 0;font-size:28px">Dự Toán Trả Góp & Chi Phí Lăn Bánh</h1>
+    <p style="margin:0;color:#bbb;font-size:14px">Tính toán chính xác số tiền trả trước, khoản góp hàng tháng và toàn bộ chi phí lăn bánh theo từng tỉnh thành.</p>
+  </div>
+
+  <!-- NÚT CHUYỂN TAB -->
+  <div class="calc-tabs">
+    <button type="button" class="calc-tab-btn active" id="tab-btn-loan" onclick="switchCalcTab('loan')">
+      Tính Trả Góp Ngân Hàng
+    </button>
+    <button type="button" class="calc-tab-btn" id="tab-btn-road" onclick="switchCalcTab('road')">
+      Chi Phí Lăn Bánh
+    </button>
+  </div>
+
+  <!-- ================= TAB 1: TÍNH TRẢ GÓP NGÂN HÀNG ================= -->
+  <div class="calc-panel active" id="panel-loan">
+    <div class="calc-card">
+      <h3 style="margin-top:0;font-size:18px;color:#1a1a1a;margin-bottom:20px">Thông Số Vay Trả Góp</h3>
+
+      <!-- Chọn xe -->
+      <div class="calc-group">
+        <label>Chọn dòng xe quan tâm</label>
+        <select id="loan-car-select" onchange="onLoanCarChange()">
+          @foreach (var c in allCars)
+          {
+            <option value="@c.Id" data-price="@c.Price" selected="@(selectedCarId == c.Id)">
+              @c.Name (@c.Brand) - Giá niêm yết: @c.Price
+            </option>
+          }
+        </select>
+      </div>
+
+      <!-- Tỷ lệ trả trước -->
+      <div class="calc-group">
+        <label>
+          <span>Tỷ lệ trả trước</span>
+          <span class="value-badge" id="down-payment-pct-badge">20%</span>
+        </label>
+        <input type="range" id="down-payment-range" min="10" max="80" step="5" value="20" oninput="calculateLoan()" />
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:#888;margin-top:4px">
+          <span>10%</span><span>30%</span><span>50%</span><span>80%</span>
+        </div>
+      </div>
+
+      <!-- Thời hạn vay -->
+      <div class="calc-group">
+        <label>
+          <span>Thời hạn vay</span>
+          <span class="value-badge" id="loan-years-badge">5 năm (60 tháng)</span>
+        </label>
+        <input type="range" id="loan-years-range" min="1" max="8" step="1" value="5" oninput="calculateLoan()" />
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:#888;margin-top:4px">
+          <span>1 năm</span><span>3 năm</span><span>5 năm</span><span>8 năm</span>
+        </div>
+      </div>
+
+      <!-- Lãi suất năm -->
+      <div class="calc-group">
+        <label>
+          <span>Lãi suất ngân hàng (% / năm)</span>
+          <span class="value-badge" id="interest-rate-badge">7.5%</span>
+        </label>
+        <input type="range" id="interest-rate-range" min="5.0" max="14.0" step="0.5" value="7.5" oninput="calculateLoan()" />
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:#888;margin-top:4px">
+          <span>5.0%</span><span>7.5% (Ưu đãi)</span><span>10.0%</span><span>14.0%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- KẾT QUẢ TÍNH TRẢ GÓP -->
+    <div class="calc-summary-card">
+      <div>
+        <h3 style="margin-top:0;font-size:18px;color:#ffcc00;margin-bottom:15px">Ước Tính Chi Phí Trả Góp</h3>
+        <div class="summary-row">
+          <span>Giá xe niêm yết:</span>
+          <strong id="loan-car-price-display">0 ₫</strong>
+        </div>
+        <div class="summary-row">
+          <span>Số tiền trả trước:</span>
+          <strong id="loan-down-payment-val" style="color:#2ecc71">0 ₫</strong>
+        </div>
+        <div class="summary-row">
+          <span>Số tiền vay ngân hàng:</span>
+          <strong id="loan-borrow-amount">0 ₫</strong>
+        </div>
+        <div class="summary-row">
+          <span>Tiền gốc trả hàng tháng:</span>
+          <span id="loan-monthly-principal">0 ₫</span>
+        </div>
+        <div class="summary-row">
+          <span>Tiền lãi tháng đầu:</span>
+          <span id="loan-monthly-interest">0 ₫</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="summary-total">
+          <div>
+            <div style="font-size:13px;color:#bbb">Số tiền trả tháng đầu (Gốc + Lãi):</div>
+            <div class="summary-total-value" id="loan-monthly-total">0 ₫</div>
+          </div>
+        </div>
+        <a href="/Cars/TestDrive" class="calc-cta-btn">Đăng Ký Tư Vấn Gói Vay Ngay</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= TAB 2: CHI PHÍ LĂN BÁNH ================= -->
+  <div class="calc-panel" id="panel-road">
+    <div class="calc-card">
+      <h3 style="margin-top:0;font-size:18px;color:#1a1a1a;margin-bottom:20px">Chọn Xe & Khu Vực Đăng Ký</h3>
+
+      <!-- Chọn xe -->
+      <div class="calc-group">
+        <label>Chọn dòng xe</label>
+        <select id="road-car-select" onchange="calculateOnRoad()">
+          @foreach (var c in allCars)
+          {
+            <option value="@c.Id" data-price="@c.Price" selected="@(selectedCarId == c.Id)">
+              @c.Name (@c.Brand) - Giá niêm yết: @c.Price
+            </option>
+          }
+        </select>
+      </div>
+
+      <!-- Chọn Tỉnh / Thành -->
+      <div class="calc-group">
+        <label>Nơi đăng ký biển số</label>
+        <select id="road-location-select" onchange="calculateOnRoad()">
+          <option value="Hanoi">Hà Nội (Thuế 12%, Biển số 20 triệu)</option>
+          <option value="HCM" selected>TP. Hồ Chí Minh (Thuế 10%, Biển số 20 triệu)</option>
+          <option value="Other">Các Tỉnh / Thành khác (Thuế 10%, Biển số 1 triệu)</option>
+        </select>
+      </div>
+
+      <!-- Loại khách hàng -->
+      <div class="calc-group">
+        <label>Đối tượng đăng ký</label>
+        <select id="road-owner-type" onchange="calculateOnRoad()">
+          <option value="Personal">Cá nhân (Không kinh doanh)</option>
+          <option value="Company">Doanh nghiệp / Công ty</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- KẾT QUẢ CHI PHÍ LĂN BÁNH -->
+    <div class="calc-summary-card">
+      <div>
+        <h3 style="margin-top:0;font-size:18px;color:#ffcc00;margin-bottom:15px">Bảng Kê Chi Phí Lăn Bánh</h3>
+        <div class="summary-row">
+          <span>Giá xe xuất hóa đơn:</span>
+          <strong id="road-base-price">0 ₫</strong>
+        </div>
+        <div class="summary-row">
+          <span>Thuế trước bạ:</span>
+          <span id="road-tax-val">0 ₫</span>
+        </div>
+        <div class="summary-row">
+          <span>Phí cấp biển số:</span>
+          <span id="road-plate-val">0 ₫</span>
+        </div>
+        <div class="summary-row">
+          <span>Phí đăng kiểm lưu hành:</span>
+          <span>90.000 ₫</span>
+        </div>
+        <div class="summary-row">
+          <span>Phí bảo trì đường bộ (1 năm):</span>
+          <span id="road-maintenance-val">1.560.000 ₫</span>
+        </div>
+        <div class="summary-row">
+          <span>Bảo hiểm TNDS bắt buộc (1 năm):</span>
+          <span>530.700 ₫</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="summary-total">
+          <div>
+            <div style="font-size:13px;color:#bbb">TỔNG CHI PHÍ LĂN BÁNH DỰ KIẾN:</div>
+            <div class="summary-total-value" id="road-grand-total">0 ₫</div>
+          </div>
+        </div>
+        <a href="/Cars/TestDrive" class="calc-cta-btn">Yêu Cầu Báo Giá Lăn Bánh Chi Tiết</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function switchCalcTab(tab) {
+    document.getElementById('tab-btn-loan').classList.toggle('active', tab === 'loan');
+    document.getElementById('tab-btn-road').classList.toggle('active', tab === 'road');
+    document.getElementById('panel-loan').classList.toggle('active', tab === 'loan');
+    document.getElementById('panel-road').classList.toggle('active', tab === 'road');
+    if (tab === 'loan') calculateLoan();
+    if (tab === 'road') calculateOnRoad();
+  }
+
+  function parsePrice(str) {
+    if (!str) return 0;
+    const digits = str.replace(/\D/g, '');
+    return parseFloat(digits) || 0;
+  }
+
+  function formatMoney(num) {
+    return Math.round(num).toLocaleString('vi-VN') + ' ₫';
+  }
+
+  function onLoanCarChange() {
+    calculateLoan();
+  }
+
+  function calculateLoan() {
+    const carSel = document.getElementById('loan-car-select');
+    const selectedOpt = carSel.options[carSel.selectedIndex];
+    const priceStr = selectedOpt ? selectedOpt.getAttribute('data-price') : '0';
+    const carPrice = parsePrice(priceStr);
+
+    const downPct = parseInt(document.getElementById('down-payment-range').value);
+    const years = parseInt(document.getElementById('loan-years-range').value);
+    const months = years * 12;
+    const rateYear = parseFloat(document.getElementById('interest-rate-range').value);
+    const rateMonth = (rateYear / 100) / 12;
+
+    document.getElementById('down-payment-pct-badge').innerText = downPct + '%';
+    document.getElementById('loan-years-badge').innerText = `${years} năm (${months} tháng)`;
+    document.getElementById('interest-rate-badge').innerText = rateYear.toFixed(1) + '%';
+
+    const downPayment = carPrice * (downPct / 100);
+    const borrowAmount = carPrice - downPayment;
+
+    const principalMonth = borrowAmount / months;
+    const interestMonth1 = borrowAmount * rateMonth;
+    const monthlyTotal = principalMonth + interestMonth1;
+
+    document.getElementById('loan-car-price-display').innerText = formatMoney(carPrice);
+    document.getElementById('loan-down-payment-val').innerText = formatMoney(downPayment);
+    document.getElementById('loan-borrow-amount').innerText = formatMoney(borrowAmount);
+    document.getElementById('loan-monthly-principal').innerText = formatMoney(principalMonth);
+    document.getElementById('loan-monthly-interest').innerText = formatMoney(interestMonth1);
+    document.getElementById('loan-monthly-total').innerText = formatMoney(monthlyTotal);
+  }
+
+  function calculateOnRoad() {
+    const carSel = document.getElementById('road-car-select');
+    const selectedOpt = carSel.options[carSel.selectedIndex];
+    const priceStr = selectedOpt ? selectedOpt.getAttribute('data-price') : '0';
+    const carPrice = parsePrice(priceStr);
+
+    const loc = document.getElementById('road-location-select').value;
+    const owner = document.getElementById('road-owner-type').value;
+
+    let taxPct = 0.10;
+    let plateFee = 1000000;
+    if (loc === 'Hanoi') {
+      taxPct = 0.12;
+      plateFee = 20000000;
+    } else if (loc === 'HCM') {
+      taxPct = 0.10;
+      plateFee = 20000000;
+    }
+
+    const regFee = carPrice * taxPct;
+    const inspectFee = 90000;
+    const roadFee = (owner === 'Company') ? 2160000 : 1560000;
+    const insuranceFee = 530700;
+
+    const total = carPrice + regFee + plateFee + inspectFee + roadFee + insuranceFee;
+
+    document.getElementById('road-base-price').innerText = formatMoney(carPrice);
+    document.getElementById('road-tax-val').innerText = formatMoney(regFee);
+    document.getElementById('road-plate-val').innerText = formatMoney(plateFee);
+    document.getElementById('road-maintenance-val').innerText = formatMoney(roadFee);
+    document.getElementById('road-grand-total').innerText = formatMoney(total);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    calculateLoan();
+    calculateOnRoad();
+  });
+</script>

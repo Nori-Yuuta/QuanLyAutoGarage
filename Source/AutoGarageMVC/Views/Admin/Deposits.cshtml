@@ -1,0 +1,92 @@
+@model List<AutoGarageMVC.Models.Entities.CarDepositBooking>
+@{
+    Layout = "_AdminLayout";
+    ViewBag.Heading = "Quản Lý Đặt Cọc Giữ Xe Trực Tuyến";
+}
+
+<div class="admin-card">
+  <div class="tab-header">
+    <div>
+      <h2 style="margin:0 0 4px 0">Danh Sách Hồ Sơ Đặt Cọc Xe</h2>
+      <small style="color:#666">Tổng cộng: @Model.Count lượt đặt cọc giữ xe trực tuyến</small>
+    </div>
+  </div>
+
+  @if (Model != null && Model.Any())
+  {
+    <div style="overflow-x:auto">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Mã Cọc</th>
+            <th>Khách Hàng</th>
+            <th>Mẫu Xe Giữ Chỗ</th>
+            <th>Số Tiền Cọc</th>
+            <th>Phương Thức</th>
+            <th>Trạng Thái Cọc</th>
+            <th>Ngày Tạo</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (var d in Model)
+          {
+            <tr>
+              <td><strong style="color:#0284c7">#@d.DepositCode</strong></td>
+              <td>
+                <div style="font-weight:700;color:#1a1a1a">@d.CustomerName</div>
+                <div style="font-size:12px;color:#0284c7">📞 @d.PhoneNumber</div>
+                @if (!string.IsNullOrEmpty(d.Email))
+                {
+                  <div style="font-size:11px;color:#888">✉️ @d.Email</div>
+                }
+              </td>
+              <td>
+                <strong style="color:#e63946">@d.CarName</strong>
+                @if (!string.IsNullOrEmpty(d.CarColor))
+                {
+                  <div style="font-size:11px;color:#555">Màu: @d.CarColor</div>
+                }
+              </td>
+              <td>
+                <strong style="font-size:15px;color:#1a1a1a">@d.DepositAmount.ToString("N0") ₫</strong>
+              </td>
+              <td>
+                <span style="background:#f1f5f9;color:#334155;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:700">
+                  @d.PaymentMethod
+                </span>
+                @if (!string.IsNullOrEmpty(d.TransactionRef))
+                {
+                  <div style="font-size:10px;color:#888;margin-top:2px">Ref: @d.TransactionRef</div>
+                }
+              </td>
+              <td>
+                <form method="post" action="/Admin/UpdateDepositStatus" style="display:inline">
+                  @Html.AntiForgeryToken()
+                  <input type="hidden" name="id" value="@d.Id" />
+                  <select name="paymentStatus" onchange="this.form.submit()" style="padding:6px 10px;border-radius:6px;font-size:12px;font-weight:700;
+                    background:@(d.PaymentStatus == "Đã thanh toán" ? "#dcfce7" : (d.PaymentStatus == "Đã xác nhận giữ xe" ? "#e0f2fe" : "#fef3c7"));
+                    color:@(d.PaymentStatus == "Đã thanh toán" ? "#166534" : (d.PaymentStatus == "Đã xác nhận giữ xe" ? "#075985" : "#b45309"));
+                    border:1px solid #ccc">
+                    <option value="Chờ thanh toán" selected="@(d.PaymentStatus == "Chờ thanh toán")">⏳ Chờ thanh toán</option>
+                    <option value="Đã thanh toán" selected="@(d.PaymentStatus == "Đã thanh toán")">✅ Đã thanh toán</option>
+                    <option value="Đã xác nhận giữ xe" selected="@(d.PaymentStatus == "Đã xác nhận giữ xe")">🔒 Đã khóa giữ xe</option>
+                    <option value="Đã hoàn cọc" selected="@(d.PaymentStatus == "Đã hoàn cọc")">↩️ Đã hoàn cọc</option>
+                  </select>
+                </form>
+              </td>
+              <td style="font-size:12px;color:#666">
+                @d.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+  else
+  {
+    <div style="text-align:center;padding:50px 20px;color:#888">
+      <div>Chưa có dữ liệu đặt cọc giữ xe nào.</div>
+    </div>
+  }
+</div>

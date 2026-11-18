@@ -1,0 +1,53 @@
+@model List<AutoGarageMVC.Models.Entities.Accessory>
+@{
+    ViewBag.Title = "Phụ Kiện Chính Hãng";
+}
+
+@section Styles {
+  <link rel="stylesheet" href="~/css/page.css" />
+}
+
+<section class="page-hero">
+  <div class="page-hero-content">
+    <span class="page-hero-badge">PHỤ KIỆN CAO CẤP</span>
+    <h1>Phụ Kiện Ô Tô Chính Hãng</h1>
+    <p>Nâng cấp xế yêu với các sản phẩm nội ngoại thất, phụ tùng chất lượng cao.</p>
+  </div>
+  <div class="filter-tabs">
+    <a href="/Accessories" class="filter-tab @(ViewBag.Cat == null ? "active" : "")">Tất cả</a>
+    @foreach (var c in (string[])ViewBag.AllCategories)
+    {
+      <a href="/Accessories?category=@c" class="filter-tab @(ViewBag.Cat == c ? "active" : "")">@c</a>
+    }
+  </div>
+</section>
+
+<section class="page-section" style="padding-top:0">
+  <div class="grid">
+    @foreach (var acc in Model)
+    {
+      <a class="card" href="/Product/Detail?type=accessory&id=@acc.Id">
+        <div class="card-img" style="background:#f8f9fa;display:flex;align-items:center;justify-content:center;overflow:hidden;height:220px;">
+          @if (!string.IsNullOrWhiteSpace(acc.ImageUrl) && (acc.ImageUrl.StartsWith("/") || acc.ImageUrl.StartsWith("http")))
+          {
+            <img src="@acc.ImageUrl" alt="@acc.Name" style="width:100%;height:100%;object-fit:cover;transition:transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" />
+          }
+          else
+          {
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;color:#888;">
+              <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+              </svg>
+              <span style="font-size:12px">Chưa có ảnh</span>
+            </div>
+          }
+        </div>
+        <div class="card-body">
+          <div class="card-brand">@acc.Category</div>
+          <div class="card-title">@acc.Name</div>
+          <div class="card-price">@acc.Price</div>
+        </div>
+      </a>
+    }
+  </div>
+</section>

@@ -1,0 +1,211 @@
+@{
+    ViewBag.Title = "Đặt Cọc Giữ Xe Trực Tuyến";
+    var allCars = (List<AutoGarageMVC.Models.Entities.Car>)ViewBag.AllCars;
+    var selectedCar = (AutoGarageMVC.Models.Entities.Car?)ViewBag.SelectedCar;
+    var customerUser = (AutoGarageMVC.Models.Entities.User?)ViewBag.CustomerUser;
+}
+
+@section Styles {
+  <link rel="stylesheet" href="~/css/page.css" />
+  <style>
+    .dep-container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 30px 20px 60px;
+    }
+    .dep-hero-card {
+      background: #1a1a1a;
+      color: #fff;
+      padding: 30px;
+      border-radius: 14px;
+      margin-bottom: 30px;
+      border-left: 6px solid #ffcc00;
+    }
+    .dep-form-card {
+      background: #fff;
+      padding: 36px;
+      border-radius: 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+    .dep-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .dep-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .dep-group.full-width {
+      grid-column: 1 / -1;
+    }
+    .dep-group label {
+      font-weight: 700;
+      font-size: 14px;
+      color: #333;
+    }
+    .dep-group input, .dep-group select, .dep-group textarea {
+      padding: 12px 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      font-family: inherit;
+    }
+    .dep-group input:focus, .dep-group select:focus, .dep-group textarea:focus {
+      border-color: #ffcc00;
+    }
+    .payment-method-selector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 6px;
+    }
+    .payment-option-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 14px;
+      cursor: pointer;
+      text-align: center;
+      background: #f8fafc;
+      transition: all 0.2s;
+    }
+    .payment-option-card:hover {
+      border-color: #ffcc00;
+      background: #fff;
+    }
+    .dep-submit-btn {
+      width: 100%;
+      padding: 14px 24px;
+      background: #ffcc00;
+      color: #1a1a1a;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Plus Jakarta Sans', 'Roboto', 'Segoe UI', Arial, sans-serif !important;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.2s;
+    }
+    .dep-submit-btn:hover {
+      background: #ffaa00;
+      transform: translateY(-2px);
+    }
+    @@media (max-width: 768px) {
+      .dep-grid { grid-template-columns: 1fr; }
+      .payment-method-selector { grid-template-columns: 1fr; }
+    }
+  </style>
+}
+
+<div class="dep-container">
+  <div class="dep-hero-card">
+    <span style="background:#ffcc00;color:#1a1a1a;padding:4px 10px;border-radius:4px;font-size:12px;font-weight:800;letter-spacing:1px">GIỮ XE CHÍNH HÃNG</span>
+    <h1 style="margin:12px 0 6px 0;font-size:28px">Đặt Cọc Giữ Xe Trực Tuyến</h1>
+    <p style="margin:0;color:#bbb;font-size:14px">Đặt cọc online để giữ số VIN xe, khóa giá ưu đãi và giữ suất giao xe sớm nhất tại AutoGarage.</p>
+  </div>
+
+  <div class="dep-form-card">
+    <form method="post" action="/Deposit/CreateDeposit">
+      @Html.AntiForgeryToken()
+
+      <div class="dep-grid">
+        <!-- 1. CHỌN MẪU XE -->
+        <div class="dep-group full-width">
+          <label>Mẫu xe bạn muốn đặt cọc giữ chỗ <span style="color:#e63946">*</span></label>
+          <select name="CarId" required id="deposit-car-select">
+            @foreach (var c in allCars)
+            {
+              <option value="@c.Id" selected="@(selectedCar?.Id == c.Id)">
+                @c.Name (@c.Brand) - Giá niêm yết: @c.Price
+              </option>
+            }
+          </select>
+        </div>
+
+        <!-- 2. HỌ VÀ TÊN -->
+        <div class="dep-group">
+          <label>Họ và tên người đứng tên cọc <span style="color:#e63946">*</span></label>
+          <input type="text" name="CustomerName" value="@(customerUser?.Name ?? "")" placeholder="Ví dụ: Nguyễn Văn A" required />
+        </div>
+
+        <!-- 3. SỐ ĐIỆN THOẠI -->
+        <div class="dep-group">
+          <label>Số điện thoại liên hệ <span style="color:#e63946">*</span></label>
+          <input type="tel" name="PhoneNumber" value="@(customerUser?.Phone ?? "")" placeholder="Ví dụ: 0901234567" required />
+        </div>
+
+        <!-- 4. EMAIL -->
+        <div class="dep-group">
+          <label>Địa chỉ Email (Nhận biên lai đặt cọc)</label>
+          <input type="email" name="Email" value="@(customerUser?.Email ?? "")" placeholder="Ví dụ: email@domain.com" />
+        </div>
+
+        <!-- 5. MÀU XE MONG MUỐN -->
+        <div class="dep-group">
+          <label>Màu sắc ngoại thất mong muốn</label>
+          <select name="CarColor">
+            <option value="Trắng Ngọc Trai">Trắng Ngọc Trai</option>
+            <option value="Đen Ánh Kim">Đen Ánh Kim</option>
+            <option value="Xám Bạc Kim Loại">Xám Bạc Kim Loại</option>
+            <option value="Đỏ Pha Lê">Đỏ Pha Lê</option>
+            <option value="Xanh Đậm">Xanh Đậm</option>
+          </select>
+        </div>
+
+        <!-- 6. SỐ TIỀN ĐẶT CỌC -->
+        <div class="dep-group">
+          <label>Số tiền đặt cọc giữ xe (VNĐ)</label>
+          <select name="DepositAmount">
+            <option value="10000000">10.000.000 ₫ (Gói tiêu chuẩn)</option>
+            <option value="20000000" selected>20.000.000 ₫ (Khóa giữ số khung VIN)</option>
+            <option value="50000000">50.000.000 ₫ (Giao xe ưu tiên trong tuần)</option>
+          </select>
+        </div>
+
+        <!-- 7. PHƯƠNG THỨC THANH TOÁN -->
+        <div class="dep-group full-width">
+          <label>Phương thức thanh toán trực tuyến</label>
+          <div class="payment-method-selector">
+            <label class="payment-option-card">
+              <input type="radio" name="PaymentMethod" value="QR_TRANSFER" checked />
+              <div style="font-weight:700;margin-top:6px;color:#1a1a1a">QR Code Chuyển Khoản</div>
+              <small style="color:#666">VietQR 24/7 (Miễn phí)</small>
+            </label>
+            <label class="payment-option-card">
+              <input type="radio" name="PaymentMethod" value="VNPAY" />
+              <div style="font-weight:700;margin-top:6px;color:#1a1a1a">Cổng VNPAY</div>
+              <small style="color:#666">Thẻ ATM / Visa / Master</small>
+            </label>
+            <label class="payment-option-card">
+              <input type="radio" name="PaymentMethod" value="MOMO" />
+              <div style="font-weight:700;margin-top:6px;color:#1a1a1a">Ví Điện Tử MoMo</div>
+              <small style="color:#666">Thanh toán 1 chạm</small>
+            </label>
+          </div>
+        </div>
+
+        <!-- 8. GHI CHÚ -->
+        <div class="dep-group full-width">
+          <label>Ghi chú bổ sung</label>
+          <textarea name="Note" rows="2" placeholder="Ví dụ: Tôi dự kiến nhận xe trước ngày 30 tháng này..."></textarea>
+        </div>
+      </div>
+
+      <button type="submit" class="dep-submit-btn">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+          <line x1="1" y1="10" x2="23" y2="10"></line>
+        </svg>
+        <span>TIẾP TỤC ĐẾN BƯỚC THANH TOÁN ĐẶT CỌC</span>
+      </button>
+    </form>
+  </div>
+</div>

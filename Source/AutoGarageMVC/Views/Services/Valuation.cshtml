@@ -1,0 +1,220 @@
+@{
+    ViewBag.Title = "Định Giá Xe Cũ & Thu Cũ Đổi Mới";
+    var customerUser = (AutoGarageMVC.Models.Entities.User?)ViewBag.CustomerUser;
+    var newCars = (List<AutoGarageMVC.Models.Entities.Car>)ViewBag.NewCars;
+}
+
+@section Styles {
+  <link rel="stylesheet" href="~/css/page.css" />
+  <style>
+    .val-container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 30px 20px 60px;
+    }
+    .val-hero-card {
+      background: #1a1a1a;
+      color: #fff;
+      padding: 30px;
+      border-radius: 14px;
+      margin-bottom: 30px;
+      border-left: 6px solid #ffcc00;
+    }
+    .val-form-card {
+      background: #fff;
+      padding: 36px;
+      border-radius: 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+    .val-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .val-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .val-group.full-width {
+      grid-column: 1 / -1;
+    }
+    .val-group label {
+      font-weight: 700;
+      font-size: 14px;
+      color: #333;
+    }
+    .val-group input, .val-group select, .val-group textarea {
+      padding: 12px 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      font-family: inherit;
+    }
+    .val-group input:focus, .val-group select:focus, .val-group textarea:focus {
+      border-color: #ffcc00;
+    }
+    .val-submit-btn {
+      width: 100%;
+      padding: 14px 24px;
+      background: #ffcc00;
+      color: #1a1a1a;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Plus Jakarta Sans', 'Roboto', 'Segoe UI', Arial, sans-serif !important;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.2s;
+    }
+    .val-submit-btn:hover {
+      background: #ffaa00;
+      transform: translateY(-2px);
+    }
+    .trade-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+    .trade-step-item {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      border-left: 4px solid #1a1a1a;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .trade-step-num {
+      font-size: 20px;
+      font-weight: 800;
+      color: #1a1a1a;
+      margin-bottom: 6px;
+    }
+    @@media (max-width: 768px) {
+      .val-grid { grid-template-columns: 1fr; }
+      .trade-steps { grid-template-columns: 1fr; }
+    }
+  </style>
+}
+
+<div class="val-container">
+  <div class="val-hero-card">
+    <span style="background:#ffcc00;color:#1a1a1a;padding:4px 10px;border-radius:4px;font-size:12px;font-weight:800;letter-spacing:1px">THU XE GIÁ CAO</span>
+    <h1 style="margin:12px 0 6px 0;font-size:28px">Định Giá Xe Cũ & Thu Cũ Đổi Mới</h1>
+    <p style="margin:0;color:#bbb;font-size:14px">Thẩm định minh bạch, cam kết giá thu mua tốt nhất thị trường, hỗ trợ thủ tục sang tên và đổi sang xe mới nhận thêm ưu đãi tiền mặt.</p>
+  </div>
+
+  <div class="trade-steps">
+    <div class="trade-step-item">
+      <div class="trade-step-num">01. Gửi Thông Tin Xe</div>
+      <div style="font-size:13px;color:#666">Điền năm sản xuất, số ODO và ảnh chụp thực tế xe cũ của bạn.</div>
+    </div>
+    <div class="trade-step-item">
+      <div class="trade-step-num">02. Thẩm Định & Báo Giá</div>
+      <div style="font-size:13px;color:#666">Chuyên viên AutoGarage đánh giá và báo giá thu mua trong vòng 30 phút.</div>
+    </div>
+    <div class="trade-step-item">
+      <div class="trade-step-num">03. Bàn Giao Xe Mới</div>
+      <div style="font-size:13px;color:#666">Bù chênh lệch giá hoặc nhận gói vay ưu đãi để rước xe mới về nhà.</div>
+    </div>
+  </div>
+
+  <div class="val-form-card">
+    <form method="post" action="/Services/SubmitValuation" enctype="multipart/form-data">
+      @Html.AntiForgeryToken()
+
+      <h3 style="margin-top:0;font-size:18px;color:#1a1a1a;margin-bottom:15px;border-bottom:2px solid #eee;padding-bottom:8px">1. Thông Tin Chiếc Xe Hiện Tại Của Bạn</h3>
+
+      <div class="val-grid">
+        <div class="val-group">
+          <label>Hãng xe hiện tại <span style="color:#e63946">*</span></label>
+          <input type="text" name="CurrentBrand" placeholder="Ví dụ: Toyota, Honda, Mazda, Hyundai..." required />
+        </div>
+
+        <div class="val-group">
+          <label>Tên dòng xe & Phiên bản <span style="color:#e63946">*</span></label>
+          <input type="text" name="CurrentModel" placeholder="Ví dụ: Vios 1.5G, City RS, Mazda 3..." required />
+        </div>
+
+        <div class="val-group">
+          <label>Năm sản xuất <span style="color:#e63946">*</span></label>
+          <input type="number" name="ManufactureYear" min="2000" max="2026" value="2020" required />
+        </div>
+
+        <div class="val-group">
+          <label>Hộp số</label>
+          <select name="Transmission">
+            <option value="Số tự động (AT)">Số tự động (AT)</option>
+            <option value="Số sàn (MT)">Số sàn (MT)</option>
+            <option value="Vô cấp (CVT)">Vô cấp (CVT)</option>
+          </select>
+        </div>
+
+        <div class="val-group">
+          <label>Số km đã đi (ODO) <span style="color:#e63946">*</span></label>
+          <input type="number" name="MileageKm" placeholder="Ví dụ: 45000" required />
+        </div>
+
+        <div class="val-group">
+          <label>Tải lên ảnh xe thực tế (Góc chụp tổng thể)</label>
+          <input type="file" name="carPhoto" accept="image/*" />
+        </div>
+
+        <div class="val-group full-width">
+          <label>Mô tả tình trạng hiện tại của xe</label>
+          <textarea name="ConditionDescription" rows="2" placeholder="Ví dụ: Xe gia đình đi giữ gìn, bảo dưỡng hãng đều đặn, sơn zin 95%, không đâm đụng ngập nước..."></textarea>
+        </div>
+      </div>
+
+      <h3 style="font-size:18px;color:#1a1a1a;margin:25px 0 15px 0;border-bottom:2px solid #eee;padding-bottom:8px">2. Nhu Cầu Đổi Sang Xe Mới (Nếu Có)</h3>
+
+      <div class="val-grid">
+        <div class="val-group full-width">
+          <label>Mẫu xe mới tại AutoGarage bạn muốn đổi sang</label>
+          <select name="TargetCarModel">
+            <option value="">-- Chỉ bán xe cũ lấy tiền mặt (Không đổi xe mới) --</option>
+            @foreach (var c in newCars)
+            {
+              <option value="@c.Name (@c.Brand)">Đổi sang: @c.Name (@c.Brand) - Giá: @c.Price</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <h3 style="font-size:18px;color:#1a1a1a;margin:25px 0 15px 0;border-bottom:2px solid #eee;padding-bottom:8px">3. Thông Tin Liên Hệ Của Bạn</h3>
+
+      <div class="val-grid">
+        <div class="val-group">
+          <label>Họ và tên của bạn <span style="color:#e63946">*</span></label>
+          <input type="text" name="CustomerName" value="@(customerUser?.Name ?? "")" placeholder="Ví dụ: Trần Văn B" required />
+        </div>
+
+        <div class="val-group">
+          <label>Số điện thoại nhận báo giá <span style="color:#e63946">*</span></label>
+          <input type="tel" name="PhoneNumber" value="@(customerUser?.Phone ?? "")" placeholder="Ví dụ: 0987654321" required />
+        </div>
+
+        <div class="val-group full-width">
+          <label>Địa chỉ Email (Nhận bảng thẩm định chi tiết)</label>
+          <input type="email" name="Email" value="@(customerUser?.Email ?? "")" placeholder="Ví dụ: email@domain.com" />
+        </div>
+      </div>
+
+      <button type="submit" class="val-submit-btn">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </svg>
+        <span>GỬI YÊU CẦU ĐỊNH GIÁ & THU CŨ ĐỔI MỚI</span>
+      </button>
+    </form>
+  </div>
+</div>

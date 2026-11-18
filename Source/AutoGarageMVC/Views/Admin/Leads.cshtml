@@ -1,0 +1,127 @@
+@model List<AutoGarageMVC.Models.Entities.CustomerLead>
+@{
+    Layout = "_AdminLayout";
+    ViewBag.Heading = "Quản Lý Khách Hàng Tiềm Năng (Mini CRM)";
+    string currentStage = ViewBag.CurrentStage as string ?? "";
+    string currentSearch = ViewBag.CurrentSearch as string ?? "";
+}
+
+<div class="admin-card">
+  <!-- THỐNG KÊ NHANH -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:15px;margin-bottom:25px">
+    <div style="background:#f8fafc;padding:16px;border-radius:10px;border-left:4px solid #1a1a1a">
+      <small style="color:#666;font-weight:600">TỔNG KHÁCH HÀNG (LEADS)</small>
+      <div style="font-size:24px;font-weight:800;color:#1a1a1a;margin-top:4px">@ViewBag.TotalCount</div>
+    </div>
+    <div style="background:#fffbeb;padding:16px;border-radius:10px;border-left:4px solid #f59e0b">
+      <small style="color:#b45309;font-weight:600">MỚI TIẾP NHẬN (CẦN GỌI)</small>
+      <div style="font-size:24px;font-weight:800;color:#d97706;margin-top:4px">@ViewBag.NewCount</div>
+    </div>
+    <div style="background:#f0fdf4;padding:16px;border-radius:10px;border-left:4px solid #22c55e">
+      <small style="color:#15803d;font-weight:600">ĐÃ CHỐT HỢP ĐỒNG</small>
+      <div style="font-size:24px;font-weight:800;color:#16a34a;margin-top:4px">@ViewBag.WonCount</div>
+    </div>
+  </div>
+
+  <!-- BỘ LỌC LEAD -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:15px">
+    <form method="get" action="/Admin/Leads" style="display:flex;gap:10px;flex:1;max-width:600px">
+      <input type="text" name="search" value="@currentSearch" placeholder="Tìm theo tên khách hàng, số điện thoại, xe quan tâm..." 
+             style="flex:1;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-size:13px;outline:none" />
+      <select name="stage" onchange="this.form.submit()" style="padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-size:13px">
+        <option value="">-- Tất cả giai đoạn --</option>
+        <option value="Mới tiếp nhận" selected="@(currentStage == "Mới tiếp nhận")">Mới tiếp nhận</option>
+        <option value="Đang liên hệ" selected="@(currentStage == "Đang liên hệ")">Đang liên hệ</option>
+        <option value="Hẹn xem xe" selected="@(currentStage == "Hẹn xem xe")">Hẹn xem xe</option>
+        <option value="Đàm phán" selected="@(currentStage == "Đàm phán")">Đàm phán</option>
+        <option value="Đã chốt" selected="@(currentStage == "Đã chốt")">Đã chốt</option>
+        <option value="Hủy" selected="@(currentStage == "Hủy")">Hủy</option>
+      </select>
+      <button type="submit" class="action-btn" style="background:#1a1a1a;color:#fff;padding:0 18px">Lọc</button>
+    </form>
+  </div>
+
+  <!-- BẢNG LEAD CRM -->
+  @if (Model != null && Model.Any())
+  {
+    <div style="overflow-x:auto">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Khách Hàng</th>
+            <th>Nguồn Lead</th>
+            <th>Mối Quan Tâm</th>
+            <th>Nhân Viên Phụ Trách</th>
+            <th>Tiến Độ Chăm Sóc</th>
+            <th>Thao Tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (var l in Model)
+          {
+            <tr>
+              <td>
+                <div style="font-weight:700;color:#1a1a1a">@l.FullName</div>
+                <div style="font-size:12px;color:#0284c7">📞 @l.PhoneNumber</div>
+                @if (!string.IsNullOrEmpty(l.Email))
+                {
+                  <div style="font-size:11px;color:#888">✉️ @l.Email</div>
+                }
+                <div style="font-size:11px;color:#aaa">Tạo lúc: @l.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+              </td>
+              <td>
+                <span style="background:#f1f5f9;color:#334155;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:600">
+                  @l.LeadSource
+                </span>
+              </td>
+              <td>
+                <strong style="color:#e63946">@l.InterestedCarOrService</strong>
+                @if (!string.IsNullOrEmpty(l.Notes))
+                {
+                  <div style="font-size:11px;color:#666;margin-top:4px">📝 @l.Notes</div>
+                }
+              </td>
+              <td>
+                <form method="post" action="/Admin/UpdateLead" style="display:flex;gap:6px;align-items:center">
+                  @Html.AntiForgeryToken()
+                  <input type="hidden" name="id" value="@l.Id" />
+                  <input type="text" name="assignedConsultant" value="@l.AssignedConsultant" placeholder="Tên Sale..." 
+                         style="padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:12px;width:120px" />
+                  <select name="stage" onchange="this.form.submit()" style="padding:6px 10px;border-radius:6px;font-size:12px;font-weight:700;
+                    background:@(l.Stage == "Đã chốt" ? "#dcfce7" : (l.Stage == "Mới tiếp nhận" ? "#fef3c7" : "#f1f5f9"));
+                    color:@(l.Stage == "Đã chốt" ? "#166534" : (l.Stage == "Mới tiếp nhận" ? "#b45309" : "#334155"));
+                    border:1px solid #ccc">
+                    <option value="Mới tiếp nhận" selected="@(l.Stage == "Mới tiếp nhận")">Mới tiếp nhận</option>
+                    <option value="Đang liên hệ" selected="@(l.Stage == "Đang liên hệ")">Đang liên hệ</option>
+                    <option value="Hẹn xem xe" selected="@(l.Stage == "Hẹn xem xe")">Hẹn xem xe</option>
+                    <option value="Đàm phán" selected="@(l.Stage == "Đàm phán")">Đàm phán</option>
+                    <option value="Đã chốt" selected="@(l.Stage == "Đã chốt")">Đã chốt</option>
+                    <option value="Hủy" selected="@(l.Stage == "Hủy")">Hủy</option>
+                  </select>
+                </form>
+              </td>
+              <td>
+                <span style="font-weight:700;color:@(l.Stage == "Đã chốt" ? "#166534" : (l.Stage == "Mới tiếp nhận" ? "#b45309" : "#334155"))">
+                  @l.Stage
+                </span>
+              </td>
+              <td>
+                <form method="post" action="/Admin/DeleteLead" onsubmit="return confirm('Xác nhận xóa lead này?')" style="display:inline">
+                  @Html.AntiForgeryToken()
+                  <input type="hidden" name="id" value="@l.Id" />
+                  <button type="submit" class="action-btn delete">Xóa</button>
+                </form>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+  else
+  {
+    <div style="text-align:center;padding:50px 20px;color:#888">
+      <div>Không tìm thấy dữ liệu khách hàng tiềm năng nào phù hợp.</div>
+    </div>
+  }
+</div>

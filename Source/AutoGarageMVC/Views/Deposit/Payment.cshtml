@@ -1,0 +1,152 @@
+@model AutoGarageMVC.Models.Entities.CarDepositBooking
+@{
+    ViewBag.Title = "Thanh Toán Đặt Cọc Giữ Xe #" + Model.DepositCode;
+    var isPaid = Model.PaymentStatus == "Đã thanh toán";
+}
+
+@section Styles {
+  <link rel="stylesheet" href="~/css/page.css" />
+  <style>
+    .pay-container {
+      max-width: 800px;
+      margin: 30px auto 60px;
+      padding: 0 20px;
+    }
+    .pay-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 36px;
+      box-shadow: 0 4px 25px rgba(0,0,0,0.08);
+      border-top: 6px solid @(isPaid ? "#2ecc71" : "#ffcc00");
+    }
+    .pay-qr-box {
+      background: #f8fafc;
+      border: 2px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      margin: 25px 0;
+    }
+    .pay-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 14px;
+    }
+    .pay-row:last-child { border-bottom: none; }
+    .pay-btn-confirm {
+      width: 100%;
+      padding: 14px;
+      background: #1a1a1a;
+      color: #ffcc00;
+      border: 1px solid #ffcc00;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .pay-btn-confirm:hover {
+      background: #ffcc00;
+      color: #1a1a1a;
+    }
+  </style>
+}
+
+<div class="pay-container">
+  <div class="pay-card">
+    @if (isPaid)
+    {
+      <div style="text-align:center;margin-bottom:25px">
+        <div style="width:64px;height:64px;border-radius:50%;background:#dcfce7;color:#166534;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px">
+          <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <h2 style="margin:0 0 6px 0;color:#166534">ĐẶT CỌC GIỮ XE THÀNH CÔNG!</h2>
+        <p style="margin:0;color:#666">Mã giao dịch đặt cọc: <strong>@Model.DepositCode</strong></p>
+      </div>
+    }
+    else
+    {
+      <div style="text-align:center;margin-bottom:20px">
+        <h2 style="margin:0 0 6px 0;color:#1a1a1a">Thanh Toán Đặt Cọc Giữ Xe</h2>
+        <p style="margin:0;color:#666">Vui lòng quét mã QR hoặc hoàn tất thanh toán để hệ thống khóa giữ xe cho bạn.</p>
+      </div>
+    }
+
+    <div style="background:#f8f9fa;padding:18px 20px;border-radius:10px;margin-bottom:20px">
+      <div class="pay-row">
+        <span>Mã hồ sơ cọc:</span>
+        <strong style="color:#0284c7">#@Model.DepositCode</strong>
+      </div>
+      <div class="pay-row">
+        <span>Mẫu xe đặt cọc:</span>
+        <strong style="color:#1a1a1a">@Model.CarName</strong>
+      </div>
+      <div class="pay-row">
+        <span>Màu sắc mong muốn:</span>
+        <span>@(Model.CarColor ?? "Màu tiêu chuẩn")</span>
+      </div>
+      <div class="pay-row">
+        <span>Khách hàng đứng tên:</span>
+        <span>@Model.CustomerName (@Model.PhoneNumber)</span>
+      </div>
+      <div class="pay-row">
+        <span>Số tiền đặt cọc:</span>
+        <strong style="font-size:18px;color:#e63946">@Model.DepositAmount.ToString("N0") ₫</strong>
+      </div>
+      <div class="pay-row">
+        <span>Trạng thái cọc:</span>
+        <span style="font-weight:700;color:@(isPaid ? "#166534" : "#b45309")">
+          @(isPaid ? "Đã nhận tiền cọc & Đã khóa giữ xe" : "Chờ thanh toán")
+        </span>
+      </div>
+    </div>
+
+    @if (!isPaid)
+    {
+      <!-- KHUNG QR CODE CHUYỂN KHOẢN TỰ ĐỘNG -->
+      <div class="pay-qr-box">
+        <h3 style="margin-top:0;color:#1a1a1a;font-size:16px">Quét Mã QR Chuyển Khoản Tự Động (VietQR)</h3>
+        
+        <!-- QR Code VietQR API sinh tự động theo mã cọc và số tiền -->
+        <img src="https://api.vietqr.io/image/970422-0901234567-compact2.jpg?amount=@((long)Model.DepositAmount)&addInfo=@Model.DepositCode&accountName=AUTOGARAGE%20VIETNAM" 
+             alt="VietQR AutoGarage" 
+             style="max-width:240px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1);margin:10px auto;display:block;" />
+
+        <div style="font-size:13px;color:#555;margin-top:10px;line-height:1.6">
+          <div>Ngân hàng: <strong>MBBank (Ngân hàng Quân Đội)</strong></div>
+          <div>Số tài khoản: <strong>0901 234 567</strong></div>
+          <div>Chủ tài khoản: <strong>AUTOGARAGE VIETNAM</strong></div>
+          <div>Nội dung chuyển khoản: <strong style="color:#e63946;background:#fee2e2;padding:2px 8px;border-radius:4px">@Model.DepositCode</strong></div>
+        </div>
+      </div>
+
+      <!-- FORM MÔ PHỎNG XÁC NHẬN THANH TOÁN (CHO KHÁCH HÀNG / TEST NHANH) -->
+      <form method="post" action="/Deposit/ConfirmPaymentSuccess">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="depositCode" value="@Model.DepositCode" />
+        <button type="submit" class="pay-btn-confirm">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>TÔI ĐÃ HOÀN TẤT CHUYỂN KHOẢN ĐẶT CỌC</span>
+        </button>
+      </form>
+    }
+    else
+    {
+      <div style="text-align:center;margin-top:25px">
+        <a href="/" class="pay-btn-confirm" style="display:inline-flex;width:auto;padding:12px 28px;text-decoration:none">
+          VỀ TRANG CHỦ AUTOGARAGE
+        </a>
+      </div>
+    }
+  </div>
+</div>

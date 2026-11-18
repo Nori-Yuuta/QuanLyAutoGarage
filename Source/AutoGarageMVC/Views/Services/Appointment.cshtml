@@ -1,0 +1,229 @@
+@{
+    ViewBag.Title = "Đặt Lịch Bảo Dưỡng & Sửa Chữa Xe Ô Tô";
+    var customerUser = (AutoGarageMVC.Models.Entities.User?)ViewBag.CustomerUser;
+}
+
+@section Styles {
+  <link rel="stylesheet" href="~/css/page.css" />
+  <style>
+    .service-container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 30px 20px 60px;
+    }
+    .service-hero-card {
+      background: #1a1a1a;
+      color: #fff;
+      padding: 30px;
+      border-radius: 14px;
+      margin-bottom: 30px;
+      border-left: 6px solid #ffcc00;
+    }
+    .service-form-card {
+      background: #fff;
+      padding: 36px;
+      border-radius: 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+    .service-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .service-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .service-group.full-width {
+      grid-column: 1 / -1;
+    }
+    .service-group label {
+      font-weight: 700;
+      font-size: 14px;
+      color: #333;
+    }
+    .service-group input, .service-group select, .service-group textarea {
+      padding: 12px 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      font-family: inherit;
+    }
+    .service-group input:focus, .service-group select:focus, .service-group textarea:focus {
+      border-color: #ffcc00;
+    }
+    .package-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 6px;
+    }
+    .package-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #f8fafc;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .package-card:hover {
+      border-color: #ffcc00;
+      background: #fff;
+    }
+    .package-card input[type="radio"] {
+      margin-top: 3px;
+      accent-color: #1a1a1a;
+    }
+    .service-submit-btn {
+      width: 100%;
+      padding: 14px 24px;
+      background: #ffcc00;
+      color: #1a1a1a;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Plus Jakarta Sans', 'Roboto', 'Segoe UI', Arial, sans-serif !important;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.2s;
+    }
+    .service-submit-btn:hover {
+      background: #ffaa00;
+      transform: translateY(-2px);
+    }
+    @@media (max-width: 768px) {
+      .service-grid { grid-template-columns: 1fr; }
+      .package-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+}
+
+<div class="service-container">
+  <div class="service-hero-card">
+    <span style="background:#ffcc00;color:#1a1a1a;padding:4px 10px;border-radius:4px;font-size:12px;font-weight:800;letter-spacing:1px">DỊCH VỤ CHÍNH HÃNG</span>
+    <h1 style="margin:12px 0 6px 0;font-size:28px">Đặt Lịch Bảo Dưỡng & Sửa Chữa Ô Tô</h1>
+    <p style="margin:0;color:#bbb;font-size:14px">Đặt hẹn trước giúp quý khách được tiếp nhận xe ngay lập tức, không mất thời gian chờ đợi, phụ tùng chính hãng 100%.</p>
+  </div>
+
+  <div class="service-form-card">
+    <form method="post" action="/Services/BookAppointment">
+      @Html.AntiForgeryToken()
+
+      <div class="service-grid">
+        <!-- 1. BIỂN SỐ XE -->
+        <div class="service-group">
+          <label>Biển số xe của bạn <span style="color:#e63946">*</span></label>
+          <input type="text" name="LicensePlate" placeholder="Ví dụ: 51H-123.45 hoặc 30A-999.88" required style="font-weight:700;text-transform:uppercase" />
+        </div>
+
+        <!-- 2. HÃNG & DÒNG XE -->
+        <div class="service-group">
+          <label>Hãng và Dòng xe</label>
+          <input type="text" name="CarBrandAndModel" placeholder="Ví dụ: Toyota Camry, Honda CR-V, Ford Ranger..." />
+        </div>
+
+        <!-- 3. HỌ VÀ TÊN -->
+        <div class="service-group">
+          <label>Họ và tên chủ xe <span style="color:#e63946">*</span></label>
+          <input type="text" name="CustomerName" value="@(customerUser?.Name ?? "")" placeholder="Ví dụ: Nguyễn Văn A" required />
+        </div>
+
+        <!-- 4. SỐ ĐIỆN THOẠI -->
+        <div class="service-group">
+          <label>Số điện thoại liên hệ <span style="color:#e63946">*</span></label>
+          <input type="tel" name="PhoneNumber" value="@(customerUser?.Phone ?? "")" placeholder="Ví dụ: 0901234567" required />
+        </div>
+
+        <!-- 5. CHỌN GÓI DỊCH VỤ -->
+        <div class="service-group full-width">
+          <label>Chọn gói dịch vụ cần thực hiện <span style="color:#e63946">*</span></label>
+          <div class="package-grid">
+            <label class="package-card">
+              <input type="radio" name="ServicePackage" value="Thay nhớt & Bảo dưỡng định kỳ" checked />
+              <div>
+                <strong style="display:block;color:#1a1a1a">Thay nhớt & Bảo dưỡng định kỳ</strong>
+                <small style="color:#666">Thay dầu máy, lọc nhớt, vệ sinh lọc gió, kiểm tra 30 hạng mục tiêu chuẩn.</small>
+              </div>
+            </label>
+
+            <label class="package-card">
+              <input type="radio" name="ServicePackage" value="Kiểm tra hệ thống phanh & Lốp" />
+              <div>
+                <strong style="display:block;color:#1a1a1a">Kiểm tra Phanh & Lốp</strong>
+                <small style="color:#666">Đo độ mòn bố thắng, láng đĩa phanh, cân bằng động bánh xe, cân chỉnh thước lái.</small>
+              </div>
+            </label>
+
+            <label class="package-card">
+              <input type="radio" name="ServicePackage" value="Đồng sơn & Phục hồi va quẹt" />
+              <div>
+                <strong style="display:block;color:#1a1a1a">Đồng sơn & Phục hồi thân vỏ</strong>
+                <small style="color:#666">Sơn dặm, hấp sơn sấy phòng kín chuẩn màu gốc, gò hàn phục hồi va chạm.</small>
+              </div>
+            </label>
+
+            <label class="package-card">
+              <input type="radio" name="ServicePackage" value="Bảo dưỡng cấp lớn (40.000 - 80.000 Km)" />
+              <div>
+                <strong style="display:block;color:#1a1a1a">Bảo dưỡng cấp lớn toàn diện</strong>
+                <small style="color:#666">Thay bugi, dầu hộp số, dung dịch làm mát, vệ sinh kim phun buồng đốt.</small>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- 6. NGÀY TIẾP NHẬN -->
+        <div class="service-group">
+          <label>Ngày đưa xe đến Garage <span style="color:#e63946">*</span></label>
+          <input type="date" name="AppointmentDate" id="appointment-date" required />
+        </div>
+
+        <!-- 7. KHUNG GIỜ -->
+        <div class="service-group">
+          <label>Khung giờ tiếp nhận xe mong muốn</label>
+          <select name="TimeSlot">
+            <option value="08:00 - 09:30">08:00 - 09:30 (Đầu ca sáng)</option>
+            <option value="09:30 - 11:00">09:30 - 11:00</option>
+            <option value="13:30 - 15:00">13:30 - 15:00 (Đầu ca chiều)</option>
+            <option value="15:00 - 16:30">15:00 - 16:30</option>
+          </select>
+        </div>
+
+        <!-- 8. MÔ TẢ TRIỆU CHỨNG HOẶC YÊU CẦU -->
+        <div class="service-group full-width">
+          <label>Mô tả tình trạng xe hoặc yêu cầu riêng (nếu có)</label>
+          <textarea name="CustomerNotes" rows="3" placeholder="Ví dụ: Xe có tiếng kêu lạ ở gầm khi đi qua gờ giảm tốc, cần kiểm tra thêm máy lạnh..."></textarea>
+        </div>
+      </div>
+
+      <button type="submit" class="service-submit-btn">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+        </svg>
+        <span>XÁC NHẬN ĐẶT LỊCH HẸN BẢO DƯỠNG</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('appointment-date');
+    if (dateInput) {
+      dateInput.min = today;
+      dateInput.value = today;
+    }
+  });
+</script>

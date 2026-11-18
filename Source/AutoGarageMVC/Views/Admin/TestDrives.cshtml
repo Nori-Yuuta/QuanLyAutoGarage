@@ -1,0 +1,99 @@
+@model List<AutoGarageMVC.Models.Entities.TestDriveBooking>
+@{
+    Layout = "_AdminLayout";
+    ViewBag.Heading = "Quản Lý Lịch Hẹn Lái Thử Xe";
+}
+
+<div class="admin-card">
+  <div class="tab-header">
+    <div>
+      <h2 style="margin:0 0 4px 0">Danh Sách Khách Hàng Đăng Ký Lái Thử</h2>
+      <small style="color:#666">Tổng cộng: @Model.Count yêu cầu lái thử từ khách hàng</small>
+    </div>
+  </div>
+
+  @if (Model != null && Model.Any())
+  {
+    <div style="overflow-x:auto">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Mã</th>
+            <th>Khách Hàng</th>
+            <th>Mẫu Xe Quan Tâm</th>
+            <th>Thời Gian Hẹn</th>
+            <th>Địa Điểm</th>
+            <th>Trạng Thái</th>
+            <th>Thao Tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (var b in Model)
+          {
+            <tr>
+              <td><strong>#@b.Id</strong></td>
+              <td>
+                <div style="font-weight:700;color:#1a1a1a">@b.CustomerName</div>
+                <div style="font-size:12px;color:#0284c7">📞 @b.PhoneNumber</div>
+                @if (!string.IsNullOrEmpty(b.Email))
+                {
+                  <div style="font-size:11px;color:#888">✉️ @b.Email</div>
+                }
+              </td>
+              <td>
+                <strong style="color:#e63946">@b.CarModelName</strong>
+                @if (!string.IsNullOrEmpty(b.Note))
+                {
+                  <div style="font-size:11px;color:#666;font-style:italic">Note: @b.Note</div>
+                }
+              </td>
+              <td>
+                <div>📅 @b.PreferredDate.ToString("dd/MM/yyyy")</div>
+                <div style="font-size:12px;color:#555">⏰ @b.PreferredTimeSlot</div>
+              </td>
+              <td>
+                <span style="font-weight:600">@b.LocationType</span>
+                @if (!string.IsNullOrEmpty(b.HomeAddress))
+                {
+                  <div style="font-size:11px;color:#666">@b.HomeAddress</div>
+                }
+              </td>
+              <td>
+                <form method="post" action="/Admin/UpdateTestDriveStatus" style="display:inline">
+                  @Html.AntiForgeryToken()
+                  <input type="hidden" name="id" value="@b.Id" />
+                  <select name="status" onchange="this.form.submit()" style="padding:6px 10px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;
+                    background:@(b.Status == "Đã xác nhận" ? "#dcfce7" : (b.Status == "Hoàn thành" ? "#e0f2fe" : (b.Status == "Đã hủy" ? "#fee2e2" : "#fef9c3")));
+                    color:@(b.Status == "Đã xác nhận" ? "#166534" : (b.Status == "Hoàn thành" ? "#075985" : (b.Status == "Đã hủy" ? "#991b1b" : "#854d0e")));
+                    border:1px solid #ccc">
+                    <option value="Chờ xác nhận" selected="@(b.Status == "Chờ xác nhận")">⏳ Chờ xác nhận</option>
+                    <option value="Đã xác nhận" selected="@(b.Status == "Đã xác nhận")">📞 Đã xác nhận</option>
+                    <option value="Hoàn thành" selected="@(b.Status == "Hoàn thành")">✅ Hoàn thành</option>
+                    <option value="Đã hủy" selected="@(b.Status == "Đã hủy")">❌ Đã hủy</option>
+                  </select>
+                </form>
+              </td>
+              <td>
+                <form method="post" action="/Admin/DeleteTestDrive" onsubmit="return confirm('Bạn có chắc muốn xóa lịch hẹn này?')" style="display:inline">
+                  @Html.AntiForgeryToken()
+                  <input type="hidden" name="id" value="@b.Id" />
+                  <button type="submit" class="action-btn delete" title="Xóa">Xóa</button>
+                </form>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+  else
+  {
+    <div style="text-align:center;padding:50px 20px;color:#888">
+      <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#ccc" stroke-width="1.5" style="margin-bottom:12px">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+      </svg>
+      <div>Chưa có yêu cầu đặt lịch lái thử nào từ khách hàng.</div>
+    </div>
+  }
+</div>

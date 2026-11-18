@@ -1,0 +1,236 @@
+@model AutoGarageMVC.Models.Entities.TestDriveBooking
+@{
+    ViewBag.Title = "Đăng Ký Lái Thử Xe Trực Tuyến";
+    var allCars = (List<AutoGarageMVC.Models.Entities.Car>)ViewBag.AllCars;
+    int? selectedCarId = ViewBag.SelectedCarId;
+    var customerUser = (AutoGarageMVC.Models.Entities.User?)ViewBag.CustomerUser;
+}
+
+@section Styles {
+  <link rel="stylesheet" href="~/css/page.css" />
+  <style>
+    .td-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 30px 20px 60px;
+    }
+    .td-hero-card {
+      background: #1a1a1a;
+      color: #fff;
+      padding: 30px;
+      border-radius: 14px;
+      margin-bottom: 30px;
+      border-left: 6px solid #ffcc00;
+    }
+    .td-form-card {
+      background: #fff;
+      padding: 36px;
+      border-radius: 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+    .td-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .td-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .td-group.full-width {
+      grid-column: 1 / -1;
+    }
+    .td-group label {
+      font-weight: 700;
+      font-size: 14px;
+      color: #333;
+    }
+    .td-group input, .td-group select, .td-group textarea {
+      padding: 12px 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .td-group input:focus, .td-group select:focus, .td-group textarea:focus {
+      border-color: #ffcc00;
+    }
+    .td-submit-btn {
+      width: 100%;
+      padding: 14px 24px;
+      background: #ffcc00;
+      color: #1a1a1a;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Plus Jakarta Sans', 'Roboto', 'Segoe UI', Arial, sans-serif !important;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.2s;
+    }
+    .td-submit-btn:hover {
+      background: #ffaa00;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(255, 204, 0, 0.4);
+    }
+    .td-benefit-box {
+      margin-top: 30px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+    .td-benefit-item {
+      background: #f8f9fa;
+      padding: 16px;
+      border-radius: 10px;
+      border: 1px solid #eee;
+      text-align: center;
+      font-size: 13px;
+    }
+    @@media (max-width: 768px) {
+      .td-grid { grid-template-columns: 1fr; }
+      .td-benefit-box { grid-template-columns: 1fr; }
+      .td-form-card { padding: 24px; }
+    }
+  </style>
+}
+
+<div class="td-container">
+  <div class="td-hero-card">
+    <span style="background:#ffcc00;color:#1a1a1a;padding:4px 10px;border-radius:4px;font-size:12px;font-weight:800;letter-spacing:1px">TRẢI NGHIỆM THỰC TẾ</span>
+    <h1 style="margin:12px 0 6px 0;font-size:28px">Đăng Ký Lái Thử Xe Trực Tuyến</h1>
+    <p style="margin:0;color:#bbb;font-size:14px">Đặt lịch hẹn lái thử các mẫu xe mới nhất tại Showroom AutoGarage hoặc tận nhà hoàn toàn miễn phí.</p>
+  </div>
+
+  <div class="td-form-card">
+    <form method="post" action="/Cars/BookTestDrive">
+      @Html.AntiForgeryToken()
+
+      <div class="td-grid">
+        <!-- 1. CHỌN MẪU XE -->
+        <div class="td-group full-width">
+          <label>Mẫu xe bạn muốn lái thử <span style="color:#e63946">*</span></label>
+          <select name="CarId" required id="car-select">
+            <option value="">-- Vui lòng chọn mẫu xe --</option>
+            @foreach (var c in allCars)
+            {
+              <option value="@c.Id" selected="@(selectedCarId == c.Id)">
+                @c.Name (@c.Brand) - Động cơ: @c.Engine - Giá: @c.Price
+              </option>
+            }
+          </select>
+        </div>
+
+        <!-- 2. HỌ VÀ TÊN -->
+        <div class="td-group">
+          <label>Họ và tên của bạn <span style="color:#e63946">*</span></label>
+          <input type="text" name="CustomerName" placeholder="Ví dụ: Nguyễn Văn A" value="@(customerUser?.Name ?? "")" required />
+        </div>
+
+        <!-- 3. SỐ ĐIỆN THOẠI -->
+        <div class="td-group">
+          <label>Số điện thoại liên hệ <span style="color:#e63946">*</span></label>
+          <input type="tel" name="PhoneNumber" placeholder="Ví dụ: 0901234567" value="@(customerUser?.Phone ?? "")" required />
+        </div>
+
+        <!-- 4. EMAIL -->
+        <div class="td-group">
+          <label>Địa chỉ Email (Nhận thư xác nhận)</label>
+          <input type="email" name="Email" placeholder="Ví dụ: yourname@email.com" value="@(customerUser?.Email ?? "")" />
+        </div>
+
+        <!-- 5. NGÀY HẸN LÁI THỬ -->
+        <div class="td-group">
+          <label>Ngày bạn muốn lái thử <span style="color:#e63946">*</span></label>
+          <input type="date" name="PreferredDate" id="preferred-date" required />
+        </div>
+
+        <!-- 6. KHUNG GIỜ -->
+        <div class="td-group">
+          <label>Khung giờ thuận tiện</label>
+          <select name="PreferredTimeSlot">
+            <option value="Sáng (08:30 - 10:00)">Sáng (08:30 - 10:00)</option>
+            <option value="Sáng (10:00 - 11:30)">Sáng (10:00 - 11:30)</option>
+            <option value="Chiều (14:00 - 15:30)">Chiều (14:00 - 15:30)</option>
+            <option value="Chiều (15:30 - 17:00)">Chiều (15:30 - 17:00)</option>
+            <option value="Tối (17:30 - 19:00)">Tối (17:30 - 19:00)</option>
+          </select>
+        </div>
+
+        <!-- 7. ĐỊA ĐIỂM LÁI THỬ -->
+        <div class="td-group">
+          <label>Địa điểm lái thử mong muốn</label>
+          <select name="LocationType" id="location-select" onchange="toggleAddressField()">
+            <option value="Showroom">Tại Showroom AutoGarage (123 Đường Số 1, Q.1, TP.HCM)</option>
+            <option value="Tại nhà">Lái thử tận nhà / Cơ quan (Có nhân viên mang xe đến)</option>
+          </select>
+        </div>
+
+        <!-- 8. ĐỊA CHỈ NHÀ (NẾU CHỌN TẠI NHÀ) -->
+        <div class="td-group full-width" id="address-box" style="display:none">
+          <label>Địa chỉ cụ thể của bạn</label>
+          <input type="text" name="HomeAddress" placeholder="Số nhà, tên đường, Phường/Xã, Quận/Huyện..." />
+        </div>
+
+        <!-- 9. GHI CHÚ BỔ SUNG -->
+        <div class="td-group full-width">
+          <label>Ghi chú hoặc yêu cầu riêng (nếu có)</label>
+          <textarea name="Note" rows="3" placeholder="Ví dụ: Tôi muốn trải nghiệm thêm tính năng Cruise Control và hệ thống loa âm thanh..."></textarea>
+        </div>
+      </div>
+
+      <button type="submit" class="td-submit-btn">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 17h14M5 17l1.5-6.5A2 2 0 0 1 8.4 9h7.2a2 2 0 0 1 1.9 1.5L19 17M5 17v3M19 17v3"></path>
+          <circle cx="7.5" cy="19" r="1.5"></circle>
+          <circle cx="16.5" cy="19" r="1.5"></circle>
+        </svg>
+        <span>GỬI YÊU CẦU ĐẶT LỊCH LÁI THỬ</span>
+      </button>
+    </form>
+
+    <div class="td-benefit-box">
+      <div class="td-benefit-item">
+        <strong style="display:block;margin-bottom:4px;color:#1a1a1a">100% Miễn Phí</strong>
+        Không phát sinh bất kỳ khoản phí xăng hay tư vấn nào
+      </div>
+      <div class="td-benefit-item">
+        <strong style="display:block;margin-bottom:4px;color:#1a1a1a">Bảo Hiểm Toàn Diện</strong>
+        Mọi chuyến đi đều được bảo hiểm an toàn tuyệt đối
+      </div>
+      <div class="td-benefit-item">
+        <strong style="display:block;margin-bottom:4px;color:#1a1a1a">Chuyên Viên Đồng Hành</strong>
+        Hướng dẫn tận tình mọi tính năng và công nghệ trên xe
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Giới hạn ngày lái thử từ ngày mai trở đi
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const minDateStr = tomorrow.toISOString().split('T')[0];
+    const dateInput = document.getElementById('preferred-date');
+    if (dateInput) {
+      dateInput.min = minDateStr;
+      dateInput.value = minDateStr;
+    }
+  });
+
+  function toggleAddressField() {
+    const loc = document.getElementById('location-select').value;
+    const addrBox = document.getElementById('address-box');
+    addrBox.style.display = (loc === 'Tại nhà') ? 'flex' : 'none';
+  }
+</script>
